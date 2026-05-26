@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Architecture MVC — DPR Manager</title>
+<style>
+  @page { size: A3 landscape; margin: 10mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #eee;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; padding: 10px;
+  }
+  @media print {
+    body { background: white; }
+    .page { box-shadow: none; }
+  }
+  .page {
+    background: #f0f0f0;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    display: flex; justify-content: center; align-items: center;
+    aspect-ratio: 1.414;
+    width: min(95vw, 1400px);
+  }
+  svg { width: 100%; height: 100%; }
+  @media print {
+    .page { width: 100%; box-shadow: none; }
+    svg { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+<svg viewBox="0 0 1400 980" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+
+  <!-- ═══════ DEFS ═══════ -->
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="8" refX="11" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8 Z" fill="#444"/>
+    </marker>
+    <marker id="arrow-rev" markerWidth="12" markerHeight="8" refX="1" refY="4" orient="auto">
+      <path d="M12,0 L0,4 L12,8 Z" fill="#444"/>
+    </marker>
+  </defs>
+
+  <!-- ═══════ TITLE ═══════ -->
+  <text x="700" y="52" text-anchor="middle" font-size="36" font-weight="900" fill="#1a1a1a">Architecture MVC — DPR Manager</text>
+  <text x="700" y="82" text-anchor="middle" font-size="15" fill="#777">Application de Gestion des Données de Production (ETAP) — Patron Modèle-Vue-Contrôleur</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- MODEL BOX (top-left) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="60" y="140" width="420" height="320" rx="16" fill="#E8DFF5" stroke="#C4B1E0" stroke-width="3"/>
+  <text x="270" y="185" text-anchor="middle" font-size="22" font-weight="800" fill="#5B3A8C">Modèle (Model)</text>
+  <line x1="110" y1="200" x2="430" y2="200" stroke="#C4B1E0" stroke-width="1.5"/>
+  <text x="270" y="235" text-anchor="middle" font-size="15" font-weight="700" fill="#333">Pipeline de traitement ETL</text>
+  <text x="100" y="275" font-size="14" fill="#444">📥  Extraction des fichiers Excel DPR</text>
+  <text x="100" y="305" font-size="14" fill="#444">🧹  Nettoyage heuristique des données</text>
+  <text x="100" y="335" font-size="14" fill="#444">📤  Export CSV et sauvegarde en base</text>
+  <text x="100" y="365" font-size="14" fill="#444">🗺️  Application des mappings concessions</text>
+  <text x="100" y="405" font-size="14" fill="#444">📡  Envoi de logs en temps réel</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- VIEW BOX (top-right) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="920" y="140" width="420" height="320" rx="16" fill="#D5F0EC" stroke="#9DD5CB" stroke-width="3"/>
+  <text x="1130" y="185" text-anchor="middle" font-size="22" font-weight="800" fill="#1A7A6A">Vue (View)</text>
+  <line x1="970" y1="200" x2="1290" y2="200" stroke="#9DD5CB" stroke-width="1.5"/>
+  <text x="1130" y="235" text-anchor="middle" font-size="15" font-weight="700" fill="#333">Interface Web dynamique</text>
+  <text x="960" y="275" font-size="14" fill="#444">📊  Tableau de bord interactif avec graphiques</text>
+  <text x="960" y="305" font-size="14" fill="#444">🔐  Pages de connexion et d'inscription</text>
+  <text x="960" y="335" font-size="14" fill="#444">🌐  Traduction FR / EN en temps réel</text>
+  <text x="960" y="365" font-size="14" fill="#444">📱  Affichage responsive et adaptatif</text>
+  <text x="960" y="405" font-size="14" fill="#444">📈  Visualisation gaz, pétrole, eau, condensat</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- DATABASE (top-center) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- Cylinder shape -->
+  <ellipse cx="700" cy="175" rx="70" ry="22" fill="#F8D7E4" stroke="#E08AAE" stroke-width="2.5"/>
+  <rect x="630" y="175" width="140" height="75" fill="#F8D7E4" stroke="none"/>
+  <line x1="630" y1="175" x2="630" y2="250" stroke="#E08AAE" stroke-width="2.5"/>
+  <line x1="770" y1="175" x2="770" y2="250" stroke="#E08AAE" stroke-width="2.5"/>
+  <ellipse cx="700" cy="250" rx="70" ry="22" fill="#F8D7E4" stroke="#E08AAE" stroke-width="2.5"/>
+  <!-- DB icon lines inside -->
+  <line x1="640" y1="200" x2="760" y2="200" stroke="#E08AAE" stroke-width="1" opacity="0.5"/>
+  <line x1="640" y1="220" x2="760" y2="220" stroke="#E08AAE" stroke-width="1" opacity="0.5"/>
+  <!-- DB label -->
+  <text x="700" y="300" text-anchor="middle" font-size="17" font-weight="800" fill="#C0406A">Base de Données</text>
+  <text x="700" y="322" text-anchor="middle" font-size="12" fill="#888">SQLite — Utilisateurs, configurations,</text>
+  <text x="700" y="340" text-anchor="middle" font-size="12" fill="#888">résultats de production</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- CONTROLLER BOX (bottom-center) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="430" y="600" width="540" height="260" rx="16" fill="#FEF9E0" stroke="#F0E4A0" stroke-width="3"/>
+  <text x="700" y="645" text-anchor="middle" font-size="22" font-weight="800" fill="#8A7A20">Contrôleur (Controller)</text>
+  <line x1="480" y1="660" x2="920" y2="660" stroke="#F0E4A0" stroke-width="1.5"/>
+  <text x="700" y="695" text-anchor="middle" font-size="15" font-weight="700" fill="#333">Serveur API REST (FastAPI)</text>
+  <text x="470" y="735" font-size="14" fill="#444">🔀  Routage des requêtes HTTP vers les services métier</text>
+  <text x="470" y="765" font-size="14" fill="#444">🛡️  Validation automatique des données entrantes</text>
+  <text x="470" y="795" font-size="14" fill="#444">🔐  Authentification et gestion sécurisée des sessions</text>
+  <text x="470" y="825" font-size="14" fill="#444">📡  Communication temps réel via WebSocket</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- END USER (bottom-left) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="80" y="660" width="200" height="160" rx="16" fill="#E8DFF5" stroke="#C4B1E0" stroke-width="2.5"/>
+  <text x="180" y="720" text-anchor="middle" font-size="42">💻</text>
+  <text x="180" y="765" text-anchor="middle" font-size="16" font-weight="800" fill="#3A2A6A">Utilisateur Final</text>
+  <text x="180" y="790" text-anchor="middle" font-size="12" fill="#888">Opérateur / Ingénieur</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ARROWS -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Model ←→ Database -->
+  <line x1="480" y1="230" x2="625" y2="215" stroke="#444" stroke-width="2.5" marker-end="url(#arrow)" marker-start="url(#arrow-rev)"/>
+
+  <!-- Database ←→ View -->
+  <line x1="775" y1="215" x2="915" y2="230" stroke="#444" stroke-width="2.5" marker-end="url(#arrow)" marker-start="url(#arrow-rev)"/>
+
+  <!-- Controller → Model : Fetch Data -->
+  <line x1="500" y1="600" x2="320" y2="465" stroke="#444" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="310" y="515" width="170" height="28" rx="6" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="395" y="535" text-anchor="middle" font-size="13" font-weight="600" fill="#555">Chercher les données</text>
+
+  <!-- Controller → View : Fetch Presentation -->
+  <line x1="900" y1="600" x2="1080" y2="465" stroke="#444" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="930" y="515" width="190" height="28" rx="6" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="1025" y="535" text-anchor="middle" font-size="13" font-weight="600" fill="#555">Mettre à jour l'affichage</text>
+
+  <!-- End User → Controller : Request -->
+  <line x1="280" y1="710" x2="425" y2="690" stroke="#444" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="290" y="675" width="130" height="24" rx="6" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="355" y="693" text-anchor="middle" font-size="12" font-weight="600" fill="#555">Requête HTTP</text>
+
+  <!-- Controller → End User : Response -->
+  <line x1="425" y1="760" x2="280" y2="780" stroke="#444" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="290" y="755" width="130" height="24" rx="6" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="355" y="773" text-anchor="middle" font-size="12" font-weight="600" fill="#555">Réponse JSON</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- LEGEND -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="180" y="910" width="1040" height="45" rx="10" fill="white" stroke="#ddd" stroke-width="1"/>
+  
+  <rect x="210" y="924" width="30" height="16" rx="4" fill="#E8DFF5" stroke="#C4B1E0" stroke-width="1.5"/>
+  <text x="248" y="938" font-size="12" fill="#555">Modèle — Logique métier</text>
+  
+  <rect x="460" y="924" width="30" height="16" rx="4" fill="#D5F0EC" stroke="#9DD5CB" stroke-width="1.5"/>
+  <text x="498" y="938" font-size="12" fill="#555">Vue — Interface utilisateur</text>
+  
+  <rect x="720" y="924" width="30" height="16" rx="4" fill="#FEF9E0" stroke="#F0E4A0" stroke-width="1.5"/>
+  <text x="758" y="938" font-size="12" fill="#555">Contrôleur — Gestion des requêtes</text>
+  
+  <rect x="1010" y="924" width="30" height="16" rx="4" fill="#F8D7E4" stroke="#E08AAE" stroke-width="1.5"/>
+  <text x="1048" y="938" font-size="12" fill="#555">Base de données</text>
+
+</svg>
+</div>
+</body>
+</html>

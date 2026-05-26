@@ -1,0 +1,21 @@
+﻿Nom Concession,Date,Remarque,Source,Production Gaz en k Sm3,Production Gaz en k Nm3,Gaz Expédié (Steg) en K Sm3,Gaz Expédié (Steg) en K Nm3,Gaz Expédié (Steg) en TEP,Gaz Expédié (Steg) HP en K Sm3,Gaz Expédié (Steg) HP en K Nm3,Gaz Expédié (Steg) HP en TEP,Gaz Expédié (Steg) BP en K Sm3,Gaz Expédié (Steg) BP en K Nm3,Gaz Expédié (Steg) BP en TEP,Gaz Expédié Off Spec (Steg) en k Nm3,Gaz Expédié Off Spec (Steg) en k Sm3,Gaz Expédié Riche en k Nm3,Gaz vendu Riche Superieur en k Nm3,Gaz Expédié hors contrat en k Nm3,Gaz Torché en k Sm3,Fuel Gas Consommé en k Sm3,Injection Gaz en k Sm3,PCS en Kcal/Nm3,PCS BP en Kcal/Nm3 ,PCS HP en Kcal/Nm3 ,Wobbe index,Production Huile en m3,Production Huile en Tonne,Densité Huile en g/cm3,Production Gpl en m3,Production Gpl en Tonne,Densité Gpl en g/cm3,Production Butane en m3,Production Butane en Tonne,Densité Butane en g/cm3,Production Propane en m3,Production Propane en Tonne,Densité Propane en g/cm3,Production Pentane en m3,Production Pentane en Tonne,Densité Pentane en g/cm3,Production Eau en m3,Injection de l'Eau,salinite de l'eau injecte en mg/l,salinite de l'eau produit en mg/l,Production condensat en m3,Production condensat en Tonne,Injection Condensat en m3,Densité Condensat en g/cm3,Production de CO2 en K Sm3,Gaz Torché en k Nm3,Fuel Gas Consommé en k Nm3
+ABIR NEW,2021-09-27 00:00:00,"
+VX parameters of 09/09 (oil= 83 m3;  gas= 136153 Sm3 ;  water= 9 m3)
+Production parameters are calculated from the GOR (WELL TEST), VX & BSW
+Well closed on 09/09  -  STEG facilities tech issues & 3Y maint anticipation (GABES LPG Plant) ( Estimated duration 60 days)
+",,0,,0,,,,,,,,,,,,,,0,0,,0,,,,0,,,,,,,,,,,,,,,0,,,,,,,,,,
+ADAM NEW,2021-09-27 00:00:00,"Gas delivery reduction from 09/09 - STEG facilities tech issues & 3Y maint anticipation (GABES LPG Plant) ( Estimated duration 60 days)   : 
+                                                          HAWA#4 : Well choke down from 52 to 40/64 on 10/09 ( FTHP= 60-77 BAR // FLP=21  BAR)
+KARMA#1 & KARMA#2: Wells on flare from  respectively 10H00 to 12H00 & from 10H00 to 21H00  for well integrity ",,683.843,,566.59031,,,,,,,,,,,,,,0,68.09805332859949,0,,,,,349.4824662474461,,,,,,,,,,,,,,,640.9237176679197,,,,0,,,,,,
+ANAGUID EST NEW,2021-09-27 00:00:00,,,3.964882469555367,,0,,,,,,,,,,,,,,3.9535542339280654,0,,,,,,30.19227713332274,,0.765,,,,,,,,,,,,,80.08898776418242,,,,,,,,,,
+ASHTART NEW,2021-09-27 00:00:00, ,GAALOUL MED ALI,32.8323125,,,,,,,,,,,,,,,,24.25,15000,557000,,,,,386.2625,,,,,,,,,,,,,,,89304.53854166667,0,,,,,,,,,
+BARAKA NEW,2021-09-27 00:00:00,"
+NB: L'allocation de production par puits est estimée.  
+Oil storage autonomy =13 days 
+Water storage autonomy = 03 days  
+GPL storage autonomy = 01 days / GPL export by track = 25,513 TN / LPG demand limitation 
+Gas production limitation due to the increase of LPG storage
+EDG Baraka failure from 17/09 - waiting for weather window 
+
+",,214.053,,188.981,,,,,,,,,,,,,,0,13.953,,9863.334448320353,,,,233.03666858252896,,,,23.567,,,,,,,,,,,491.5181851825699,,,,,,,,,,
+BIR BEN TARTAR NEW,2021-09-27 00:00:00,,Field report 27 September 2021.xlsm,,16.99716713881004,,,,,,,,,,,,,,,,,,,,,,78.21437026000189,,,,,,,,,,,,,,,19,31,,,,,,,,,

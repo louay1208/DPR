@@ -1,0 +1,2906 @@
+Option Explicit
+
+Public arrDCData As Object
+Public arrDCItems As Object
+Public dicCanevaDC As Object
+Public dicCanevaDW As Object
+Public dicCanevaMC As Object
+Public dicCanevaWT As Object
+Public dicUOM As Object
+Public dicMonth As Object
+Public dicDPRList As Object
+Public sCurentSheetName As String
+
+
+Public Sub createList()
+
+'Set arrDCData = CreateObject("System.Collections.ArrayList")
+'Set arrDCItems = CreateObject("System.Collections.ArrayList")
+Set dicCanevaDC = CreateObject("Scripting.Dictionary")
+Set dicCanevaDW = CreateObject("Scripting.Dictionary")
+Set dicCanevaMC = CreateObject("Scripting.Dictionary")
+Set dicCanevaWT = CreateObject("Scripting.Dictionary")
+Set dicUOM = CreateObject("Scripting.Dictionary")
+Set dicMonth = CreateObject("Scripting.Dictionary")
+
+
+Dim Key As Variant
+Dim numDC As Long
+Dim numDW As Long
+Dim numMC As Long
+Dim numWT As Long
+
+Dim wk As Worksheet
+    Set wk = ThisWorkbook.Worksheets("DatafileDD")
+    Dim rg As Range
+    Dim i As Long
+    
+    Set rg = wk.Range("J1").CurrentRegion
+    numDW = rg.Rows.Count
+    For i = 2 To rg.Rows.Count
+        dicCanevaDW.Add rg.Cells(i, 2).Value, rg.Cells(i, 3).Value
+      'Debug.Print rg.Cells(i, 2).Value, rg.Cells(i, 3).Value
+    Next i
+    
+    
+    Set rg = wk.Range("B1").CurrentRegion
+    numDC = rg.Rows.Count
+    For i = 2 To rg.Rows.Count
+        dicCanevaDC.Add rg.Cells(i, 2).Value, rg.Cells(i, 3).Value
+    
+    'Debug.Print rg.Cells(i, 2).value, rg.Cells(i, 3).value
+    Next i
+    
+    Set rg = wk.Range("F1").CurrentRegion
+    numMC = rg.Rows.Count
+    For i = 2 To rg.Rows.Count
+        dicCanevaMC.Add rg.Cells(i, 2).Value, rg.Cells(i, 3).Value
+    
+    Next i
+    
+    Set rg = wk.Range("M1").CurrentRegion
+    numWT = rg.Rows.Count
+    For i = 2 To rg.Rows.Count
+        dicCanevaWT.Add rg.Cells(i, 2).Value, rg.Cells(i, 3).Value
+       
+    Next i
+    
+    
+    
+ Set wk = ThisWorkbook.Worksheets("UOM")
+ Set rg = wk.Range("A1").CurrentRegion
+    
+    For i = 2 To rg.Rows.Count
+        dicUOM.Add rg.Cells(i, 1).Value, rg.Cells(i, 2).Value
+    
+    'Debug.Print rg.Cells(i, 1).Value, rg.Cells(i, 2).Value
+    Next i
+
+dicMonth.Add "1", "B"
+dicMonth.Add "2", "C"
+dicMonth.Add "3", "D"
+dicMonth.Add "4", "E"
+dicMonth.Add "5", "F"
+dicMonth.Add "6", "G"
+dicMonth.Add "7", "H"
+dicMonth.Add "8", "I"
+dicMonth.Add "9", "J"
+dicMonth.Add "10", "K"
+dicMonth.Add "11", "L"
+dicMonth.Add "12", "M"
+
+
+
+'arrDCData.item(0).item(0) = 1
+'arrDCData.item(0).item(dicCanevaDC("DW005")) = 100
+
+
+End Sub
+
+
+Sub PullMappingData(ByVal MapPath As String, _
+    MapName As String, wsName As String, rgS As String, rgE As String)
+'Dim strWb As String: strWb = "'C:\Temp\etap\maping\[Mapping_Anaguid.xlsx]"
+Dim strWb As String: strWb = "'" & MapPath & "\[" & MapName & "]"
+Dim LCount As Long
+With ThisWorkbook.Worksheets("Main").Range("Z1")
+    .Formula = "=COUNTA(" & strWb & wsName & "'!$A:$A)"
+    .Value = .Value
+    LCount = .Value
+    .Clear
+End With
+
+Dim rang
+Dim rangs
+'rang = "C1:H" & LCount
+rang = rgS & "1:" & rgE & LCount
+'rangs = "$C$1:$H$" & LCount
+rangs = "$" & rgS & "$1:$" & rgE & "$" & LCount
+
+With ThisWorkbook.Worksheets("Template")
+'ScratchWorksheet.Range("B1", "B3").FormulaArray = "='PathToClosedBook\[ClosedBook.xlsx]Sheet1'!$B$1:$B$3"
+.Cells.Clear
+'.Range(rang).FormulaArray = "=('C:\Temp\etap\maping\[Mapping_Anaguid.xlsx]Mapping_concession'!" & rangs & ")"
+.Range(rang).FormulaArray = "=('" & MapPath & "\[" & MapName & "]" & wsName & "'!" & rangs & ")"
+'MsgBox ("=('" & wbPath & "\[" & wbName & "]Mapping_concession'!" & rangs & ")")
+.Range(rang) = .Range(rang).Value
+'.Columns("C1:G200").AutoFit
+
+
+End With
+ 'Debug.Print arrDCData.item(0).item(0)
+
+
+End Sub
+
+
+
+
+Sub RedDataFromDPR(ByVal DPRPath As String, _
+    DPRName As String, indx As String)
+
+'Sub RedDataFromDPR()
+
+Dim wsName As String, wbAlias As String
+Dim ref As String
+
+
+
+'Dim DPRPath As String
+'Dim MapName As String
+'Dim DPRName As String
+'Dim indx As String
+'
+'Call createList
+'Call ResetHeader
+''
+''
+'
+'DPRPath = ThisWorkbook.Worksheets("Parameters").Range("B3")
+'
+'
+'indx = "NAWARA NEW"
+
+
+
+'wbPath = ThisWorkbook.Worksheets("Parameters").Range("B3")
+'wbName = "Djebel Grouz 08032021.xlsx"
+
+'Dim arrMapping
+'arrMapping = Worksheets("Template").Range("C1").CurrentRegion
+Dim rg As Range
+Dim num As Integer
+Set rg = Worksheets("OutputDC").Range("A1").CurrentRegion
+    num = rg.Rows.Count + 1
+
+Dim arrMapping As Variant
+arrMapping = Worksheets("Template").Range("B1").CurrentRegion
+'wsName As String, cellRef As String
+
+Dim val As Variant
+val = Null
+Dim i As Long
+Dim uom As String
+Dim fact As Variant, k As Variant
+
+
+' 1 file_name   2_sheet_name  3_Template    4_attribut    5_attribut_code   6_mapping-ref 7_unite
+
+
+'Set dicDPRList = CreateObject("Scripting.Dictionary")
+'
+'Dim dt As Date: dt = Format(Sheet2.TextBoxDateAuto.Text, "[$-en-US]dd/mm/yyyy;@")
+'Dim nbrDays As Integer
+'nbrDays = Sheet2.ComboBoxDayNumber.Value
+''MsgBox (nbrDays)
+'
+''For i = LBound(dicDPRList, 1) To UBound(dicDPRList, 1)
+''For i = 1 To nbrDays
+'dt = CDate(Sheet2.TextBoxDateAuto.Text)
+'MsgBox (dt)
+'
+'dt = Format(dt, "[$-en-US]dd/mm/yyyy;@")
+'Call AutoDPRName(dt)
+'
+'For Each k In dicDPRList.keys
+'    Debug.Print dicDPRList(k)
+'     Next
+'    Debug.Print "END ************************* ", Format(dt, "[$-en-US]dd/mm/yyyy;@")
+'    Debug.Print "                "
+'    'dicDPRList.RemoveAll
+
+
+
+
+
+
+For i = LBound(arrMapping, 1) + 1 To UBound(arrMapping, 1)
+    If ((arrMapping(i, 6) <> 0) And (arrMapping(i, 3) = "DC")) Then
+            'If (arrMapping(i, 5) <> 0) Then
+            wsName = arrMapping(i, 2)
+            wbAlias = arrMapping(i, 1)
+            DPRName = dicDPRList(wbAlias)
+            ref = Replace(arrMapping(i, 6), ":", "")
+            
+'            If (wsName = "DPR") Then
+'            wsName = sCurentSheetName
+'            End If
+            
+'            If (wsName = "MLD") Then
+'            wsName = sCurentSheetName
+'            End If
+            
+            
+            If (wsName = "GTP DPR") Then
+            wsName = "GTP DPR_" & Mid(Sheet2.TextBoxDateAuto.Text, 1, 2) & "." & Mid(Sheet2.TextBoxDateAuto.Text, 4, 2)
+            End If
+            
+            
+            
+            
+            If (Left(ref, 1) = "?") Then
+            val = GetCalculatedValue(DPRPath, DPRName, wsName, ref)
+            End If
+
+            If (Left(ref, 1) <> "?" And Left(ref, 1) <> "!") Then
+            val = GetValueFromDPRFile(DPRPath, DPRName, wsName, ref)
+            End If
+            
+            If (Left(ref, 1) = "!") Then
+            val = GetCalculatedValueMultiFile(DPRPath, ref)
+            End If
+            
+            'val = GetValueFromDPRFile(DPRPath, DPRName, wsName, ref)
+            'Debug.Print arrMapping(i, 3) & " : " & arrMapping(i, 4) & " : " & ref & " = " & val
+            'arrDCData.item(indx).item(dicCanevaDC(arrMapping(i, 4))) = val
+            'Debug.Print "fill arraylist : ", arrDCData.item(indx).item(dicCanevaDC(arrMapping(i, 4)))
+ 
+ 
+        uom = UCase(arrMapping(i, 7))
+        'Debug.Print uom
+        
+         '### calculate conversion
+        If IsNumeric(val) Then
+        If (uom <> "" And uom <> "0" And val <> "") Then
+        
+         'Debug.Print "Debut de Conversion pour  ", arrMapping(i, 8), " a lunite :", uom
+        'val = ConvertValue(uom, val)
+                    If dicUOM.Exists(uom) Then
+                    'If (dicUOM.Exists(uom)) Then
+                      fact = dicUOM(uom)
+                      'Debug.Print "Conversion de ", val, "en: "; uom, " avec: ", fact
+
+                      val = val * fact
+                      On Error Resume Next
+                      'Debug.Print "---- > Val converti = ", val
+                    End If
+        End If
+        End If
+ 
+            
+    End If
+
+
+ If dicCanevaDC.Exists(arrMapping(i, 5)) Then
+    If (arrMapping(i, 5) = "DC001") Then
+                    val = indx
+                 End If
+ rg.Cells(num, dicCanevaDC(arrMapping(i, 5))).Value = val
+ End If
+ 
+val = ""
+uom = ""
+
+
+
+
+Next i
+
+
+'val = GetValueFromDPRFile(wbPath, wbName, wsName, ref)
+
+Exit Sub
+
+End Sub
+
+
+
+
+
+
+
+Sub RedWellDataFromDPR(ByVal DPRPath As String, _
+DPRName As String, indx As String)
+
+
+'Dim DPRPath As String
+'Dim MapName As String
+'Dim DPRName As String
+'Dim indx As String
+'
+'Call createList
+'Call ResetHeader
+'
+'
+''MapPath = ThisWorkbook.Worksheets("Parameters").Range("B2")
+'DPRPath = ThisWorkbook.Worksheets("Parameters").Range("B3")
+'
+'DPRName = "DPR_TPS.xlsx"
+'indx = "EL HAJEB GUEBIBA "
+
+
+Dim wsName As String, wbAlias As String
+Dim ref As String
+
+
+Dim rg As Range
+Dim num As Integer
+
+
+
+
+
+Set rg = Worksheets("OutputDW").Range("A1").CurrentRegion
+    num = rg.Rows.Count
+
+Dim arrMapping As Variant
+arrMapping = Worksheets("Template").Range("B1").CurrentRegion
+'wsName As String, cellRef As String
+
+Dim val As Variant
+Dim i As Long, C As Long, lenc As Long
+Dim WC As String
+Dim WCtmp As String
+Dim ubhi As String
+Dim uom As String
+Dim fact As Variant
+WCtmp = ""
+For i = LBound(arrMapping, 1) + 1 To UBound(arrMapping, 1)
+
+            wsName = arrMapping(i, 2)
+            wbAlias = arrMapping(i, 1)
+            DPRName = dicDPRList(wbAlias)
+
+'            If (wsName = "DPR" And wbAlias = "DPR") Then
+'            wsName = sCurentSheetName
+'            End If
+'
+'            If (wsName = "MLD" And wbAlias = "RAPPORT MLD") Then
+'            wsName = sCurentSheetName
+'            End If
+
+'Debug.Print arrMapping(i, 3)
+'1 file 2 Sheet name  3 WellNameOperator  4 UBHI 5 Completion_name  6 Template   7 Attribut    8 Attribut_Code   9 Mapping-Ref 10 Unite
+
+
+If ((arrMapping(i, 9) <> 0) And (arrMapping(i, 6) = "DW")) Then
+'wsName = arrMapping(i, 1)
+ref = Replace(arrMapping(i, 9), ":", "")
+
+If (Left(ref, 1) = "?") Then
+val = GetCalculatedValue(DPRPath, DPRName, wsName, ref)
+End If
+
+If (Left(ref, 1) <> "?") Then
+val = GetValueFromDPRFile(DPRPath, DPRName, wsName, ref)
+End If
+
+
+
+'Debug.Print ref, val
+'MsgBox (val)
+'ThisWorkbook.Worksheets("Main").Cells(30, 1).Formula = val
+'val = ThisWorkbook.Worksheets("Main").Cells(30, 1).Formula
+
+        If arrMapping(i, 8) = "DW006" Then
+        'val = CDate(Format$(val, "dd/mm/yyyy"))
+        End If
+        
+        
+        If (arrMapping(i, 8) = "DW015" And wbAlias = "DPR") Then
+        If (val <> "") Then
+        lenc = Len(val)
+                C = InStr(val, "/")
+                
+                val = Mid(val, C + 1, lenc - C + 1)
+           End If
+             
+        End If
+        
+        
+        
+        uom = UCase(arrMapping(i, 10))
+        'Debug.Print uom
+        
+         '### calculate conversion
+        If IsNumeric(val) Then
+        If (uom <> "" And uom <> "0" And val <> "") Then
+        
+         'Debug.Print "Debut de Conversion pour  ", arrMapping(i, 9), " a lunite :", uom
+        'val = ConvertValue(uom, val)
+                    If dicUOM.Exists(uom) Then
+                    'If (dicUOM.Exists(uom)) Then
+                      fact = dicUOM(uom)
+                      'Debug.Print "Conversion de ", val, "en: "; uom, " avec: ", fact
+
+                      val = val * fact
+                      On Error Resume Next
+                      'Debug.Print "---- > Val converti = ", val
+                    End If
+        End If
+        End If
+        
+End If
+
+
+'Debug.Print DPRPath, DPRName, wsName, ref, val
+'Debug.Print arrMapping(i, 3) & " : " & arrMapping(i, 7) & " : " & ref & " = " & val
+'arrDCData.item(indx).item(dicCanevaDW(arrMapping(i, 4))) = val
+'Debug.Print "fill arraylist : ", arrDCData.item(indx).item(dicCanevaDC(arrMapping(i, 4)))
+WC = arrMapping(i, 5)
+ubhi = arrMapping(i, 4)
+If arrMapping(i, 8) = "DW005" Then
+val = WC
+'Debug.Print "WC", WC
+End If
+If arrMapping(i, 8) = "DW003" Then
+val = ubhi
+'Debug.Print "UBHI", ubhi
+End If
+If (WC <> WCtmp) Then
+num = num + 1
+WCtmp = WC
+End If
+
+If (arrMapping(i, 8) = "DW001") Then
+val = indx
+End If
+
+
+If (arrMapping(i, 8) = "DW007" And wbAlias = "TT Daily report") Then
+If IsNumeric(val) Then
+
+val = val * 24
+End If
+End If
+
+
+
+
+
+If dicCanevaDW.Exists(arrMapping(i, 8)) Then
+        rg.Cells(num, dicCanevaDW(arrMapping(i, 8))).Value = val
+    Else
+        'MsgBox arrMapping(i, 7) & "  non existant dan le dictionnaire pour ." & indx
+    End If
+
+
+
+
+
+
+val = ""
+Next i
+
+
+'val = GetValueFromDPRFile(wbPath, wbName, wsName, ref)
+
+Exit Sub
+
+End Sub
+
+
+Function GetValueFromDPRFile(ByVal wbPath As String, _
+    DPRName As String, wsName As String, cellRef As String) As Variant
+Dim arg As String
+Dim bc As String
+bc = Chr(34) + Chr(34)
+    GetValueFromDPRFile = ""
+    If Right(wbPath, 1) <> "\" Then wbPath = wbPath & "\"
+    If Dir(wbPath & "\" & DPRName) = "" Then Exit Function
+    arg = "'" & wbPath & "[" & DPRName & "]" & _
+        wsName & "'!" & Range(cellRef).Address(True, True, xlR1C1)
+    On Error Resume Next
+    'IF(ISBLANK(OutputDW!G8),"",OutputDW!G8)
+    arg = "IF(ISBLANK(" & arg & ")," & bc & "," & arg & ")"
+    'MsgBox (arg)
+    GetValueFromDPRFile = ExecuteExcel4Macro(arg)
+End Function
+
+
+
+Sub ExtractDailyData()
+
+Dim MapPath As String
+Dim DPRPath As String
+Dim MapName As String
+Dim DPRName As String
+Dim ConsName As String
+Dim rg As Range
+
+Dim TotalRows As Long
+Dim CurrentProgress As Double
+Dim ProgressPercentage As Double
+Dim BarWidth As Long
+Set rg = Worksheets("Parameters").Range("D1").CurrentRegion
+TotalRows = rg.Rows.Count
+'Application.ScreenUpdating = False
+Dim autDetectFileNAme As Boolean, AutoMultipleDPR As Boolean
+
+
+
+
+
+Call createList
+Call ResetHeader
+
+MapPath = ThisWorkbook.Worksheets("Parameters").Range("B2")
+DPRPath = ThisWorkbook.Worksheets("Parameters").Range("B3")
+'wbName = "Mapping_Anaguid.xlsx"
+
+Dim arrListConces As Variant
+arrListConces = Worksheets("Parameters").Range("D1").CurrentRegion
+'Worksheets("OutputDC").Range("A2").CurrentRegion.Clear
+Dim i As Long, t As Long
+Dim activeDay As String, activeMonth As String
+Dim myVar As String
+'Call CheckAllFileExists
+Call InitProgressBar
+
+
+
+
+Set dicDPRList = CreateObject("Scripting.Dictionary")
+
+Dim dtinit As Date: dtinit = Format(Sheet2.TextBoxDateAuto.Text, "[$-en-US]dd/mm/yyyy;@")
+Dim dt As Date
+Dim nbrDays As Integer
+nbrDays = Sheet2.ComboBoxDayNumber.Value
+'MsgBox (nbrDays)
+
+If (Sheet2.OptStandardName) Then
+nbrDays = 1
+Call StandardDPRName
+Call CheckAllFileExists
+End If
+
+'For i = LBound(dicDPRList, 1) To UBound(dicDPRList, 1)
+For t = 1 To nbrDays
+dt = dtinit - t + 1
+'MsgBox (dt)
+
+dt = Format(dt, "[$-en-US]dd/mm/yyyy;@")
+Sheet2.TextBoxDateAuto.Text = Format(dt, "dd/mm/yyyy;@")
+If (Sheet2.OptAutoName) Then
+
+Call AutoDPRname(dt)
+'Call CheckAllFileExists
+End If
+
+
+
+
+
+
+
+
+
+
+
+
+'TextBox1.Text = " "
+For i = LBound(arrListConces, 1) + 1 To UBound(arrListConces, 1)
+
+'For i = 2 To 5
+'Debug.Print "***********-----------*************"
+'Worksheets("Main").TextBox1.NewLine
+'myVar = Worksheets("Main").TextBox1.Text
+'Worksheets("Main").TextBox1.Text = myVar & i & " : bb"
+'Worksheets("Main").Shapes("TextBox1").TextFrame.Characters.Text = myVar & "***********-----------*************"
+'Debug.Print "Start file ", i - 1, " : ", arrListConces(i, 1), arrListConces(i, 3), arrListConces(i, 4)
+'TextBox1.Text = TextBox1.Text & "Start file " & i - 1 & " : " & arrListConces(i, 1) & vbCrLf
+
+ConsName = arrListConces(i, 1)
+MapName = arrListConces(i, 6)
+DPRName = arrListConces(i, 2)
+activeDay = arrListConces(i, 2)
+activeMonth = arrListConces(i, 3)
+progression.Label1.Caption = i & "/" & UBound(arrListConces, 1) & " : " & MapName & " en cours ... "
+progression.Date_Label.Caption = "Date: " & Format(dt, "dd mmm yyyy")
+CurrentProgress = i / TotalRows
+    BarWidth = progression.Border.Width * CurrentProgress
+    ProgressPercentage = Round(CurrentProgress * 100, 0)
+    progression.Bar.Width = BarWidth
+    progression.Text.Caption = ProgressPercentage & "% Complete"
+    DoEvents
+
+If (activeDay = "1") Then
+    
+
+'Debug.Print "Start file ", i - 1, " : ", arrListConces(i, 1), arrListConces(i, 3), arrListConces(i, 4)
+If (CheckFileExists(MapPath & "\" & MapName)) Then
+     
+'     If (MapName = "Mapping_Sidi El Kilani.xlsx") Then
+'     GetSheetName ("DPR")
+'     End If
+'
+'     If (MapName = "Mapping_MLD.xlsx") Then
+'     GetSheetName ("RAPPORT MLD")
+'     End If
+        
+    
+
+Call PullMappingData(MapPath, MapName, "Mapping_concession", "B", "H")
+Call RedDataFromDPR(DPRPath, DPRName, ConsName)
+ 'Debug.Print arrDCData.Count
+   'Debug.Print arrDCData.item(0).item(0).Count
+
+Call PullMappingData(MapPath, MapName, "Mapping_Well", "B", "K")
+Call RedWellDataFromDPR(DPRPath, DPRName, ConsName)
+'Debug.Print "END : ", ConsName, DPRName, MapName
+Else: MsgBox ("un des fichier " & MapName & " et " & DPRName & " n'existe pas dans le chemin defenis")
+End If
+
+      
+End If
+
+'CurrentProgress = i / TotalRows
+   ' BarWidth = progression.Border.Width * CurrentProgress
+  '  ProgressPercentage = Round(CurrentProgress * 100, 0)
+  '  progression.Bar.Width = BarWidth
+  '  progression.Text.Caption = ProgressPercentage & "% Complete"
+  '  DoEvents
+ 
+   
+
+Next i
+
+
+dicDPRList.RemoveAll
+Next t
+
+
+Unload progression
+
+
+
+
+
+
+Call FormatLine
+
+Application.ScreenUpdating = True
+Sheet2.TextBoxDateAuto.Text = Format(dtinit, "dd/mm/yyyy;@")
+Sheet2.Activate
+MsgBox (" Fin de Traitement ")
+
+
+End Sub
+
+
+
+Sub PullALLMappingData()
+    
+Dim MapPath As String
+Dim MapName As String
+Dim strWb As String
+Dim wsName As String
+
+Dim LCount As Long
+Dim numDW As Long
+Dim rang
+Dim rangs
+'Dim strWb As String: strWb = "'C:\Temp\etap\maping\[Mapping_Anaguid.xlsx]"
+Dim rg As Range
+Dim i As Long
+    
+Set rg = ThisWorkbook.Worksheets("MappingConces").Range("A1").CurrentRegion
+
+wsName = "Mapping_concession"
+
+
+
+Dim arrListConces As Variant
+arrListConces = Worksheets("Parameters").Range("D1").CurrentRegion
+
+For i = LBound(arrListConces, 1) + 1 To UBound(arrListConces, 1)
+MapName = arrListConces(i, 4)
+MapPath = ThisWorkbook.Worksheets("Parameters").Range("B2")
+
+numDW = rg.Rows.Count
+strWb = "'" & MapPath & "\[" & MapName & "]"
+
+With ThisWorkbook.Worksheets("Main").Range("Z1")
+    .Formula = "=COUNTA(" & strWb & wsName & "'!$A:$A)"
+    .Value = .Value
+    LCount = .Value
+    .Clear
+End With
+
+
+'rang = "C1:H" & LCount
+rang = "C" & numDW + 1 & ":H" & LCount
+'rang = rgS & "1:" & rgE & LCount
+rangs = "$C$1:$H$" & LCount
+'rangs = "$" & rgS & "$1:$" & rgE & "$" & LCount
+
+With ThisWorkbook.Worksheets("MappingConces")
+.Range(rang).FormulaArray = "=('" & MapPath & "\[" & MapName & "]" & wsName & "'!" & rangs & ")"
+.Range(rang) = .Range(rang).Value
+
+End With
+ 'Debug.Print arrDCData.item(0).item(0)
+
+
+Next i
+
+
+
+
+
+
+End Sub
+
+
+
+
+Sub ResetHeader()
+
+Dim rg As Range
+Dim num As Integer
+Dim rang
+
+Application.ScreenUpdating = False
+
+If (Sheet2.OptDaily And Sheet2.CheckConcatenate = False) Then
+Sheets("OutputDC").Cells.Clear
+Sheets("OutputDW").Cells.Clear
+End If
+
+If (Sheet2.OptMonthly And Sheet2.CheckConcatenate = False) Then
+Sheets("OutputMC").Cells.Clear
+End If
+
+
+Set rg = Worksheets("DatafileDD").Range("A1").CurrentRegion
+    num = rg.Rows.Count
+rang = "A2:A" & num
+Worksheets("DatafileDD").Range(rang).Copy
+Worksheets("OutputDC").Range("A1").PasteSpecial Transpose:=True
+    
+ 
+Set rg = Worksheets("DatafileDD").Range("I1").CurrentRegion
+    num = rg.Rows.Count
+rang = "I2:I" & num
+Worksheets("DatafileDD").Range(rang).Copy
+Worksheets("OutputDW").Range("A1").PasteSpecial Transpose:=True
+
+
+Set rg = Worksheets("DatafileDD").Range("E1").CurrentRegion
+    num = rg.Rows.Count
+rang = "E2:E" & num
+Worksheets("DatafileDD").Range(rang).Copy
+Worksheets("OutputMC").Range("A1").PasteSpecial Transpose:=True
+
+
+
+Set rg = Worksheets("DatafileDD").Range("M1").CurrentRegion
+    num = rg.Rows.Count
+rang = "M2:M" & num
+Worksheets("DatafileDD").Range(rang).Copy
+Worksheets("Well_Test").Range("A1").PasteSpecial Transpose:=True
+
+
+
+
+
+    
+ Application.ScreenUpdating = True
+    
+End Sub
+
+Sub FormatLine()
+
+
+
+Application.ScreenUpdating = False
+Dim rg As Range
+Dim nw As Integer, nt As Integer
+Dim nc As Integer, mc As Integer
+Dim rang
+    Set rg = Worksheets("OutputDW").Range("A1").CurrentRegion
+    nw = rg.Rows.Count
+    Set rg = Worksheets("OutputDC").Range("A1").CurrentRegion
+    nc = rg.Rows.Count
+    
+    Set rg = Worksheets("OutputMC").Range("A1").CurrentRegion
+    mc = rg.Rows.Count
+    
+    Set rg = Worksheets("Well_Test").Range("A1").CurrentRegion
+    nt = rg.Rows.Count
+    
+    Sheets("Parameters").Select
+    Range("A201:A202").Select
+    Selection.Copy
+    Sheets("OutputDW").Select
+    Range("A2:AC" & nw).Select
+    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, _
+        SkipBlanks:=False, Transpose:=False
+        
+    Sheets("OutputDC").Select
+    Range("A2:BA" & nc).Select
+    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, _
+        SkipBlanks:=False, Transpose:=False
+        
+    Sheets("OutputMC").Select
+    Range("A2:BB" & mc).Select
+    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, _
+        SkipBlanks:=False, Transpose:=False
+        
+        
+    Sheets("Well_Test").Select
+    Range("A2:AV" & nt).Select
+    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, _
+        SkipBlanks:=False, Transpose:=False
+        
+    Application.CutCopyMode = False
+    
+     
+    Sheets("Parameters").Select
+    Range("A200").Select
+    Selection.Copy
+    Sheets("OutputDW").Select
+    Range("A1:AC1").Select
+    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, _
+    SkipBlanks:=False, Transpose:=False
+    
+    Sheets("Parameters").Select
+    Range("A200").Select
+    Selection.Copy
+    Sheets("OutputDC").Select
+    Range("A1:BA1").Select
+    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, _
+    SkipBlanks:=False, Transpose:=False
+    
+    
+    Sheets("Parameters").Select
+    Range("A200").Select
+    Selection.Copy
+    Sheets("OutputMC").Select
+    Range("A1:BB1").Select
+    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, _
+    SkipBlanks:=False, Transpose:=False
+    
+    
+    
+    Sheets("Parameters").Select
+    Range("A200").Select
+    Selection.Copy
+    Sheets("Well_Test").Select
+    Range("A1:AV1").Select
+    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, _
+    SkipBlanks:=False, Transpose:=False
+       
+    'Sheets("Main").Select
+     
+    
+     If (Sheet2.OptDateFromCalandar) Then
+     Sheet7.Range("B2", "B" & nc).Value = ThisWorkbook.Worksheets("Parameters").Range("B5").Value
+     Sheet8.Range("F2", "F" & nw).Value = ThisWorkbook.Worksheets("Parameters").Range("B5").Value
+     'Sheet10.Range("B2", "F" & mc).Value = MainForm.DTPicker2.Value
+       
+   
+     End If
+    
+     
+    Sheet7.Range("B2", "B" & nc).NumberFormat = "dd/mm/yyyy"
+    Sheet8.Range("F2", "F" & nw).NumberFormat = "dd/mm/yyyy"
+    Sheet10.Range("B2", "B" & mc).NumberFormat = "dd/mm/yyyy"
+    Sheet11.Range("E2", "B" & nt).NumberFormat = "dd/mm/yyyy"
+    
+     
+     Application.ScreenUpdating = True
+     
+     
+
+End Sub
+
+
+Sub ReadDataFromAllWorkbooksInFolder()
+Dim FolderName As String, wbName As String, r As Long, cValue As Variant
+Dim wbList() As String, wbCount As Integer, i As Integer
+    FolderName = "D:\testing"
+    ' create list of workbooks in foldername
+    MsgBox ("Bonjour")
+    wbCount = 0
+    wbName = Dir(FolderName & "\" & "*.xls")
+    While wbName <> ""
+        wbCount = wbCount + 1
+        ReDim Preserve wbList(1 To wbCount)
+        wbList(wbCount) = wbName
+        wbName = Dir
+    Wend
+   ' If wbCount = 0 Then Exit Sub
+    ' get values from each workbook
+    r = 0
+    FolderName = "C:\Temp\etap\DPR2"
+    
+    Workbooks.Add
+    'For i = 1 To wbCount
+        r = r + 1
+        'cValue = GetInfoFromClosedFile(FolderName, wbList(i), "Sheet1", "A1")
+        cValue = GetValueFromDPRFile(FolderName, "DPR 20 04 2021.xlsx", "Rap  20 APR ", "B6")
+        MsgBox (cValue)
+        Cells(r, 1).Formula = wbList(i)
+        Cells(r, 2).Formula = cValue
+    'Next i
+End Sub
+
+
+Function GetCalculatedValue(ByVal wbPath As String, _
+    DPRName As String, wsName As String, cellRef As String) As Variant
+
+Dim ref As String
+Dim reftmp  As String
+Dim C  As String
+Dim cNext  As String, Oper As String
+Dim i As Long, j As Long
+
+   
+    
+Dim val As Variant
+
+j = 1
+
+'A:58#A:65
+ref = "?B15+B16-B17"
+ref = cellRef
+Oper = ""
+If (Left(ref, 1) = "?") Then
+
+    For i = 2 To Len(ref)
+    
+        C = Mid(ref, i, 1)
+        cNext = Mid(ref, i + 1, 1)
+        'MsgBox ("cNext =" & cNext)
+        reftmp = reftmp & C
+        
+        If (cNext = "+") Or (cNext = "#") Or (cNext = "-") Then
+        
+                       If (Oper = "") Then
+                      'Debug.Print wbPath, DPRName, wsName, reftmp
+                       val = val + GetValueFromDPRFile(wbPath, DPRName, wsName, reftmp)
+                        
+                       End If
+                    
+                       
+                         If (Oper = "+") Then
+                         val = val + GetValueFromDPRFile(wbPath, DPRName, wsName, reftmp)
+                         End If
+                     
+                         If (Oper = "#") Then
+                         val = val & " " & GetValueFromDPRFile(wbPath, DPRName, wsName, reftmp)
+                         End If
+                         
+                         If (Oper = "-") Then
+                         val = val - GetValueFromDPRFile(wbPath, DPRName, wsName, reftmp)
+                         End If
+                        
+                       j = j + 1
+                     
+                  Oper = cNext
+                        
+         reftmp = ""
+        
+         i = i + 1
+        End If
+       
+        
+        
+        
+        
+        
+         
+        If i = Len(ref) Then
+        
+            If (Oper = "+") Then
+            val = val + GetValueFromDPRFile(wbPath, DPRName, wsName, reftmp)
+            End If
+        
+            If (Oper = "#") Then
+            val = val & " " & GetValueFromDPRFile(wbPath, DPRName, wsName, reftmp)
+            End If
+            
+            If (Oper = "-") Then
+            val = val - GetValueFromDPRFile(wbPath, DPRName, wsName, reftmp)
+            End If
+              
+         
+         
+        End If
+    
+    Next i
+
+End If
+    
+    
+    GetCalculatedValue = val
+End Function
+
+
+
+Function GetCalculatedValueMultiFile(ByVal wbPath As String, _
+     cellRef As String) As Variant
+     'Function GetCalculatedValueMultiFile()
+
+Dim ref As String, sref As String
+Dim reftmp As String, wbAlaisTmp  As String, wsNameTmp As String, getWB As String, getWS As String
+Dim getRef As String, getUnit As String
+Dim C  As String
+Dim cNext  As String, Oper As String, DPRName As String
+Dim i As Long, j As Long
+
+Dim wbAlais As String, wsName As String, startUnit As String, unitTmp As String, unit As String
+    
+'Dim wbPath As String
+'wbPath = ThisWorkbook.Worksheets("Parameters").Range("B3")
+    
+    
+Dim val As Variant, tmpval As Variant, fact As Variant
+getWB = "0"
+getWS = "0"
+getRef = "0"
+getUnit = "0"
+startUnit = "0"
+j = 1
+
+'A:58#A:65
+
+ref = "![NAWARA_DPR/sheet1]O11+[NAWARA GTP DPR/GTP DPR]I8(0.001)"
+ref = cellRef
+Oper = ""
+
+
+
+
+    Set dicDPRList = CreateObject("Scripting.Dictionary")
+'
+Dim dt As Date: dt = Format(Sheet2.TextBoxDateAuto.Text, "[$-en-US]dd/mm/yyyy;@")
+'Dim nbrDays As Integer
+'nbrDays = Sheet2.ComboBoxDayNumber.Value
+''MsgBox (nbrDays)
+'
+''For i = LBound(dicDPRList, 1) To UBound(dicDPRList, 1)
+''For i = 1 To nbrDays
+'dt = CDate(Sheet2.TextBoxDateAuto.Text)
+'MsgBox (dt)
+'
+'dt = Format(dt, "[$-en-US]dd/mm/yyyy;@")
+Call AutoDPRname(dt)
+
+'For Each k In dicDPRList.keys
+'    Debug.Print k, dicDPRList(k)
+'     Next
+   ' Debug.Print "END ************************* ", Format(dt, "[$-en-US]dd/mm/yyyy;@")
+   ' Debug.Print "                "
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    For i = 2 To Len(ref)
+    
+        C = Mid(ref, i, 1)
+        cNext = Mid(ref, i + 1, 1)
+        'MsgBox ("cNext =" & cNext)
+        
+        'workBook
+            If (C <> "[" And C <> "/" And getWB = "0" And getWS = "0" And C <> "+") Then
+             wbAlaisTmp = wbAlaisTmp & C
+            End If
+            
+           If (C = "/") Then
+             wbAlais = wbAlaisTmp
+              'MsgBox ("Alias DPR name: " & wbAlais)
+             wbAlaisTmp = ""
+             getWB = "1"
+            End If
+        
+        'WorkSheet
+            If (C <> "/" And C <> "]" And getWB = "1" And getWS = "0") Then
+             wsNameTmp = wsNameTmp & C
+            End If
+            
+            If (C = "]") Then
+             wsName = wsNameTmp
+             'MsgBox ("sheet name: " & wsName)
+                    If (wsName = "GTP DPR") Then
+                    wsName = "GTP DPR_" & Mid(Sheet2.TextBoxDateAuto.Text, 1, 2) & "." & Mid(Sheet2.TextBoxDateAuto.Text, 4, 2)
+                    End If
+             wsNameTmp = ""
+             getWS = "1"
+            End If
+            
+        'Reference
+           If (C <> "]" And getWB = "1" And getWS = "1" And C <> "+" And getRef = "0") Then
+           reftmp = reftmp & C
+           End If
+            
+          If (getWB = "1" And getWS = "1" And C <> ")" And (cNext = "+" Or cNext = "(" Or i = Len(ref))) Then
+           
+          ' MsgBox ("Reference = " & reftmp)
+           sref = reftmp
+           getRef = "1"
+'           getWB = "0"
+'           getWS = "0"
+           reftmp = ""
+           End If
+            
+           If (startUnit = "1" And C <> ")") Then
+           unitTmp = unitTmp + C
+           End If
+           
+           If (C = ")") Then
+           startUnit = "0"
+           unit = unitTmp
+           'MsgBox (unit)
+           unitTmp = ""
+           End If
+           
+           If (C = "(") Then
+           startUnit = "1"
+           End If
+            
+            
+           If (C = ")" Or i = Len(ref) Or cNext = "+") Then
+           getUnit = "1"
+           End If
+            
+            
+           If (getWB = "1" And getWS = "1" And getUnit = "1" And getRef = "1") Then
+           
+           'MsgBox ("Alias DPR name= " & wbAlais & " sheet name= " & wsName & "Ref= " & sref & " Unit= " & unit)
+           
+           'Debug.Print "Alias DPR name= " & wbAlais & " sheet name= " & wsName & " Ref= " & sref & " Unit= " & unit
+            
+'            If dicDPRList.Exists(wbAlais) Then
+'            MsgBox (wbAlais & " Exist")
+'            Else: MsgBox (wbAlais & " N'Exist Pas")
+'            End If
+            DPRName = dicDPRList(wbAlais)
+'            Debug.Print wbPath, DPRName, wsName, sref
+            'Debug.Print wbPath & "\" & DPRName
+'            If CheckFileExists(wbPath & "\" & DPRName) Then
+'            MsgBox ("File Existe")
+'            Else: MsgBox ("nexiste pas")
+'            End If
+            
+            tmpval = GetValueFromDPRFile(wbPath, DPRName, wsName, sref)
+            'Debug.Print "TmpVal= " & tmpval
+           
+                If (unit <> "") Then
+'                       If dicUOM.Exists(unit) Then
+'                         Debug.Print "Conversion ", unit
+'                           fact = dicUOM(unit)
+'                           tmpVal = tmpVal * fact
+'                           On Error Resume Next
+'                           'Debug.Print "---- > Val converti = ", val
+'                         End If
+                       If IsNumeric(tmpval) Then
+                         tmpval = tmpval * unit
+                        End If
+                End If
+                
+                val = val + tmpval
+                'Debug.Print "val = " & val
+                
+                
+                 
+           getWB = "0"
+           getWS = "0"
+           getUnit = "0"
+           getRef = "0"
+           startUnit = "0"
+                      
+           End If
+           
+            
+
+'          If i = Len(ref) Then
+'            MsgBox ("Alias DPR name: " & wbAlais)
+'            MsgBox ("sheet name: " & wsName)
+'            MsgBox ("Ref= " & sref)
+'            MsgBox (unit)
+'           End If
+            
+            
+            
+            
+            
+            
+     Next i
+
+        
+        
+    
+    
+    GetCalculatedValueMultiFile = val
+End Function
+
+Function CheckFileExists(ByVal wbPath As String) As Boolean
+
+
+Dim strFileExists As String
+
+    
+    strFileExists = Dir(wbPath)
+
+   If strFileExists = "" Then
+       CheckFileExists = False
+    Else
+        CheckFileExists = True
+    End If
+
+End Function
+
+
+
+
+
+Sub ExtractMonthlyData()
+
+Dim MapPath As String
+Dim DPRPath As String
+Dim MapName As String
+Dim DPRName As String
+Dim ConsName As String
+Dim rg As Range
+
+Dim TotalRows As Long
+Dim CurrentProgress As Double
+Dim ProgressPercentage As Double
+Dim BarWidth As Long
+Set rg = Worksheets("Parameters").Range("D1").CurrentRegion
+TotalRows = rg.Rows.Count
+Application.ScreenUpdating = False
+
+
+Call createList
+Call ResetHeader
+
+MapPath = ThisWorkbook.Worksheets("Parameters").Range("B2")
+DPRPath = ThisWorkbook.Worksheets("Parameters").Range("B3")
+'wbName = "Mapping_Anaguid.xlsx"
+
+Dim arrListConces As Variant
+arrListConces = Worksheets("Parameters").Range("D1").CurrentRegion
+'Worksheets("OutputDC").Range("A2").CurrentRegion.Clear
+Dim i As Long
+Dim active As String
+Dim myVar As String
+'Call InitProgressBar
+
+'TextBox1.Text = " "
+For i = LBound(arrListConces, 1) + 1 To UBound(arrListConces, 1)
+
+'For i = 2 To 5
+'Debug.Print "***********-----------*************"
+'Worksheets("Main").TextBox1.NewLine
+'myVar = Worksheets("Main").TextBox1.Text
+'Worksheets("Main").TextBox1.Text = myVar & i & " : bb"
+'Worksheets("Main").Shapes("TextBox1").TextFrame.Characters.Text = myVar & "***********-----------*************"
+'Debug.Print "Start file ", i - 1, " : ", arrListConces(i, 1), arrListConces(i, 3), arrListConces(i, 4)
+'TextBox1.Text = TextBox1.Text & "Start file " & i - 1 & " : " & arrListConces(i, 1) & vbCrLf
+
+ConsName = arrListConces(i, 1)
+MapName = arrListConces(i, 6)
+DPRName = arrListConces(i, 5)
+active = arrListConces(i, 3)
+'Progress.Label1.Caption = i & "/" & UBound(arrListConces, 1) & " : " & DPRName & " en cours ... "
+If (active = "1") Then
+If (Len(DPRName) > 2) Then
+'Debug.Print "Start file ", i - 1, " : ", arrListConces(i, 1), arrListConces(i, 3), arrListConces(i, 4)
+Call PullMappingData(MapPath, MapName, "Mapping_concession", "C", "H")
+Call RedMonthlyDataFromDPR(DPRPath, DPRName, ConsName)
+ 'Debug.Print arrDCData.Count
+   'Debug.Print arrDCData.item(0).item(0).Count
+
+
+'Debug.Print "END : ", ConsName, DPRName, MapName
+End If
+  
+End If
+
+Next i
+
+Application.ScreenUpdating = True
+
+Call FormatLine
+Sheet2.Activate
+MsgBox (" Fin de Traitement ")
+
+
+
+End Sub
+
+
+
+
+Sub RedMonthlyDataFromDPR(ByVal DPRPath As String, _
+    DPRName As String, indx As String)
+
+
+Dim wsName As String
+Dim ref As String
+
+'Dim wbPath As String
+'Dim wbName As String
+
+'wbPath = ThisWorkbook.Worksheets("Parameters").Range("B3")
+'wbName = "Djebel Grouz 08032021.xlsx"
+
+'Dim arrMapping
+'arrMapping = Worksheets("Template").Range("C1").CurrentRegion
+Dim rg As Range
+Dim num As Integer
+Set rg = Worksheets("OutputMC").Range("A1").CurrentRegion
+    num = rg.Rows.Count + 1
+
+Dim arrMapping As Variant
+arrMapping = Worksheets("Template").Range("C1").CurrentRegion
+'wsName As String, cellRef As String
+
+Dim val As Variant
+val = Null
+Dim i As Long
+Dim dt As Date: dt = Sheet2.ComboBoxDD.Text & "/" & Sheet2.ComboBoxMM.Text & "/" & Sheet2.ComboBoxYYYY.Text
+
+Dim mois As String
+mois = Month(dt)
+'MsgBox (Month(dt))
+'msgbox (mois)
+mois = dicMonth(mois)
+'msgbox (mois)
+Dim uom As String
+Dim fact As Variant
+
+
+'UserForm1.DTPicker1.Month
+
+
+
+For i = LBound(arrMapping, 1) + 1 To UBound(arrMapping, 1)
+    If ((arrMapping(i, 5) <> 0) And (arrMapping(i, 2) = "MC")) Then
+            'If (arrMapping(i, 5) <> 0) Then
+            wsName = arrMapping(i, 1)
+            ref = Replace(arrMapping(i, 5), ":", "")
+            
+            ref = mois & Mid(ref, 2, Len(ref) - 1)
+            'Debug.Print arrMapping(i, 5), ref
+            val = GetValueFromDPRFile(DPRPath, DPRName, wsName, ref)
+            'Debug.Print arrMapping(i, 3) & " : " & arrMapping(i, 4) & " : " & ref & " = " & val
+            'arrDCData.item(indx).item(dicCanevaDC(arrMapping(i, 4))) = val
+            'Debug.Print "fill arraylist : ", arrDCData.item(indx).item(dicCanevaDC(arrMapping(i, 4)))
+            
+            
+        uom = UCase(arrMapping(i, 6))
+        'Debug.Print uom
+        
+         '### calculate conversion
+        If IsNumeric(val) Then
+        If (uom <> "" And uom <> "0" And val <> "") Then
+        
+         'Debug.Print "Debut de Conversion pour  ", arrMapping(i, 8), " a lunite :", uom
+        'val = ConvertValue(uom, val)
+                    If dicUOM.Exists(uom) Then
+                    'If (dicUOM.Exists(uom)) Then
+                      fact = dicUOM(uom)
+                      'Debug.Print "Conversion de ", val, "en: "; uom, " avec: ", fact
+
+                      val = val * fact
+                      On Error Resume Next
+                      'Debug.Print "---- > Val converti = ", val
+                    End If
+        End If
+        End If
+ 
+            
+                
+        
+            
+    End If
+
+
+ If dicCanevaMC.Exists(arrMapping(i, 4)) Then
+    If (arrMapping(i, 4) = "MC001") Then
+                    val = indx
+                 End If
+ rg.Cells(num, dicCanevaMC(arrMapping(i, 4))).Value = val
+ End If
+ 
+val = ""
+uom = ""
+
+Next i
+
+
+'val = GetValueFromDPRFile(wbPath, wbName, wsName, ref)
+
+Exit Sub
+
+End Sub
+
+Sub showMainFrom()
+Dim dt As Date
+
+'MsgBox (Format(Date - 1, "[$-en-US]dd/mm/yyyy;@"))
+'CDate("1/1/" & Year(dt))
+With MainForm
+ .TextMapingPath.Text = ThisWorkbook.Worksheets("Parameters").Range("B2")
+ .TextDPRPath.Text = ThisWorkbook.Worksheets("Parameters").Range("B3")
+ .TextOutputPath.Text = ThisWorkbook.Worksheets("Parameters").Range("B4")
+ .TextBoxDate.Value = Format(Date - 1, "[$-en-US]dd/mm/yyyy;@")
+ 
+ 
+ 
+End With
+
+MainForm.Show vbModal
+
+End Sub
+
+
+
+Sub CheckAllFileExists()
+
+Dim strFileExists As String, MapPath As String, DPRPath As String, wbPath As String
+
+Dim arrListDPRfiles As Variant, k As Variant
+arrListDPRfiles = Worksheets("Parameters").Range("D1").CurrentRegion
+'Worksheets("OutputDC").Range("A2").CurrentRegion.Clear
+Dim i As Long
+Dim myVar As String
+'Call InitProgressBar
+MapPath = ThisWorkbook.Worksheets("Parameters").Range("B2")
+DPRPath = ThisWorkbook.Worksheets("Parameters").Range("B3")
+'TextBox1.Text = " "
+'Concession  Active  DPR file name   Mapping
+Dim Results As String
+
+
+
+''For i = LBound(arrListDPRfiles, 1) + 1 To UBound(arrListDPRfiles, 1)
+'
+'    For Each k In dicDPRList.keys
+'    Debug.Print k, dicDPRList(k)
+'
+'
+'    If (arrListDPRfiles(i, 3) = 1) Then
+'    wbPath = DPRPath & "\" & arrListDPRfiles(i, 2)
+'    strFileExists = Dir(wbPath)
+'
+'   If strFileExists = "" Then
+'   Results = Results & "le fichier :" & arrListDPRfiles(i, 2) & " n'existe Pas " & vbCrLf
+'       End If
+'wbPath = MapPath & "\" & arrListDPRfiles(i, 6)
+'    strFileExists = Dir(wbPath)
+'
+'If strFileExists = "" Then
+'   Results = Results & "le fichier :" & arrListDPRfiles(i, 6) & " n'existe Pas " & vbCrLf
+'       End If
+'
+'End If
+'
+''Next i
+'Next
+
+
+For Each k In dicDPRList.keys
+    'Debug.Print k, dicDPRList(k)
+         
+    wbPath = DPRPath & "\" & dicDPRList(k)
+    strFileExists = Dir(wbPath)
+
+   If strFileExists = "" Then
+   Results = Results & "le fichier :" & dicDPRList(k) & " n'existe Pas " & vbCrLf
+   End If
+
+
+'Next i
+Next
+    
+ 
+If Results = "" Then Results = "Controle des fichier : OK tous les fichier existe "
+
+MsgBox Prompt:=Results, Title:="Controle l'existance des fichiers"
+End Sub
+
+
+Sub InitProgressBar()
+
+'MainForm.Hide
+
+With progression
+    .Bar.Width = 0
+    .Text.Caption = "0% Complete"
+    .Show vbModeless
+    
+End With
+
+End Sub
+
+
+Sub savetoCSV()
+Dim dd As String
+Dim OutputPath As String
+Dim dwfile As String
+Dim dcfile As String
+Dim wtfile As String
+Dim mcfile As String
+
+
+
+Dim rg As Range
+Dim nw As Integer, nt As Integer
+Dim nc As Integer, mc As Integer
+Dim rang
+    Set rg = Worksheets("OutputDW").Range("A1").CurrentRegion
+    nw = rg.Rows.Count
+    Set rg = Worksheets("OutputDC").Range("A1").CurrentRegion
+    nc = rg.Rows.Count
+    
+    Set rg = Worksheets("OutputMC").Range("A1").CurrentRegion
+    mc = rg.Rows.Count
+    
+    Set rg = Worksheets("Well_Test").Range("A1").CurrentRegion
+    nt = rg.Rows.Count
+   
+
+
+Dim rng As Range
+Dim dtMax, dtMin As Variant
+'Set range from which to determine largest value
+
+OutputPath = ThisWorkbook.Worksheets("Parameters").Range("B4")
+OutputPath = Sheet2.TextBox3.Text
+
+
+Set rng = Sheet8.Range("F2", "F" & nw)
+dtMax = Format(Application.WorksheetFunction.Max(rng), "ddmmyyyy")
+dtMin = Format(Application.WorksheetFunction.Min(rng), "ddmmyyyy")
+If (dtMax = dtMin) Then
+dwfile = OutputPath & "\" & "Dail_Well_" & dtMax & ".csv"
+Else: dwfile = OutputPath & "\" & "Daily_Well_" & Format(Application.WorksheetFunction.Min(rng), "ddmm") & "_" & dtMax & ".csv"
+End If
+
+
+
+Set rng = Sheet7.Range("B2", "B" & nc)
+dtMax = Format(Application.WorksheetFunction.Max(rng), "ddmmyyyy")
+dtMin = Format(Application.WorksheetFunction.Min(rng), "ddmmyyyy")
+If (dtMax = dtMin) Then
+dcfile = OutputPath & "\" & "Daily_Concession_" & dtMax & ".csv"
+Else: dcfile = OutputPath & "\" & "Daily_Concession_" & Format(Application.WorksheetFunction.Min(rng), "ddmm") & "_" & dtMax & ".csv"
+End If
+
+
+Set rng = Sheet10.Range("B2", "B" & mc)
+dtMax = Format(Application.WorksheetFunction.Max(rng), "ddmmyyyy")
+dtMin = Format(Application.WorksheetFunction.Min(rng), "ddmmyyyy")
+If (dtMax = dtMin) Then
+mcfile = OutputPath & "\" & "Monthly_Concession_" & dtMax & ".csv"
+Else: mcfile = OutputPath & "\" & "Monthly_Concession_" & Format(Application.WorksheetFunction.Min(rng), "ddmm") & "_" & dtMax & ".csv"
+End If
+
+
+Set rng = Sheet11.Range("E2", "B" & nt)
+dtMax = Format(Application.WorksheetFunction.Max(rng), "ddmmyyyy")
+dtMin = Format(Application.WorksheetFunction.Min(rng), "ddmmyyyy")
+If (dtMax = dtMin) Then
+wtfile = OutputPath & "\" & "Well_Test_" & dtMax & ".csv"
+Else: wtfile = OutputPath & "\" & "Well_Test_" & Format(Application.WorksheetFunction.Min(rng), "ddmm") & "_" & dtMax & ".csv"
+End If
+
+
+
+
+
+
+
+
+
+'dcfile = OutputPath & "\" & "Daily_Concession.csv"
+'dwfile = OutputPath & "\" & "Dail_Well.csv"
+'wtfile = OutputPath & "\" & "Well_Test.csv"
+'mcfile = OutputPath & "\" & "Monthly_Well.csv"
+
+
+Application.ScreenUpdating = False
+Application.DisplayAlerts = False
+ThisWorkbook.Worksheets("OutputDC").Copy
+ActiveWorkbook.SaveAs Filename:=dcfile, FileFormat:=xlCSVWindows
+'ActiveWorkbook.SaveAs Filename:=dwfile, FileFormat:=xlCSVWindows
+ActiveWorkbook.Close
+
+
+ThisWorkbook.Worksheets("OutputDW").Copy
+'ActiveWorkbook.SaveAs Filename:="C:\Temp\Daily_Well.csv", FileFormat:=xlCSVWindows
+ActiveWorkbook.SaveAs Filename:=dwfile, FileFormat:=xlCSVWindows
+ActiveWorkbook.Close
+
+
+ThisWorkbook.Worksheets("OutputMC").Copy
+'ActiveWorkbook.SaveAs Filename:="C:\Temp\Monthly_Concession.csv", FileFormat:=xlCSVWindows
+ActiveWorkbook.SaveAs Filename:=mcfile, FileFormat:=xlCSVWindows
+ActiveWorkbook.Close
+
+
+ThisWorkbook.Worksheets("Well_Test").Copy
+'ActiveWorkbook.SaveAs Filename:="C:\Temp\Well_test.csv", FileFormat:=xlCSVWindows
+ActiveWorkbook.SaveAs Filename:=wtfile, FileFormat:=xlCSVWindows
+ActiveWorkbook.Close
+
+Application.DisplayAlerts = True
+
+MsgBox ("Enregistrer dans :" & vbCrLf & dwfile & vbCrLf & dcfile & vbCrLf & wtfile & vbCrLf & mcfile & vbCrLf)
+
+Application.ScreenUpdating = False
+
+End Sub
+
+
+Sub QC_Cleaning()
+'
+' Cleaning Macro
+'
+
+'
+
+
+
+Dim answer As Integer
+ 
+answer = MsgBox("le programe proced au  selon les criteres definis dans QC Cleaning" _
+& vbNewLine & " Etes-vous sure de vouloir continuer ? ", vbQuestion + vbYesNo + vbDefaultButton2, "Confirmation Auto Cleaning")
+
+If answer = vbYes Then
+  
+Application.ScreenUpdating = False
+        Application.Calculation = xlCalculationManual
+
+
+Dim rg As Range
+Dim nw As Integer
+Dim ln As Integer, mc As Integer, i As Integer
+Dim rang
+
+Dim search_val As String, replace_val As String, search_rang As String, search_sheet As String
+
+
+Dim arrCleaning As Variant
+arrCleaning = Worksheets("QC_CLeaning").Range("A1").CurrentRegion
+'Worksheets("OutputDC").Range("A2").CurrentRegion.Clear
+
+
+'TextBox1.Text = " "
+For i = LBound(arrCleaning, 1) + 1 To UBound(arrCleaning, 1)
+search_sheet = arrCleaning(i, 1)
+search_rang = arrCleaning(i, 2)
+search_val = arrCleaning(i, 3)
+replace_val = arrCleaning(i, 4)
+'MsgBox (search_rang)
+
+Set rg = Worksheets(search_sheet).Range("A1").CurrentRegion
+    mc = rg.Rows.Count
+rang = search_rang & mc
+'MsgBox (rang)
+
+ Sheets(search_sheet).Select
+    'Range(rang).Select
+    Range(rang).Select
+Selection.Replace What:=search_val, Replacement:=replace_val, LookAt:=xlPart, _
+        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+
+
+Next i
+
+
+Dim myCell As Range
+
+Dim MyRange As Range: Set MyRange = Application.Range("OutputDW!M2:M10000")
+        For Each myCell In MyRange
+        myCell.Value = Replace(myCell.Value, Chr(10), " --> ")
+    Next
+
+
+Set MyRange = Application.Range("OutputDW!AB2:AB10000")
+        For Each myCell In MyRange
+        myCell.Value = Replace(myCell.Value, Chr(10), " --> ")
+    Next
+    
+    
+   Set MyRange = Application.Range("OutputDC!C2:C2000")
+        For Each myCell In MyRange
+        myCell.Value = Replace(myCell.Value, Chr(10), " --> ")
+    Next
+
+
+' Sheets("OutputDC").Activate
+'        For Each ComentRange In ActiveSheet.UsedRange
+'                If 0 < InStr(ComentRange, Chr(10)) Then
+'                        ComentRange = Replace(ComentRange, Chr(10), " ")
+'                End If
+'        Next
+
+
+  Application.ScreenUpdating = True
+        Application.Calculation = xlCalculationAutomatic
+        Sheets("Main").Activate
+  MsgBox " Fin de QC Cleaning"
+  
+  
+  
+Else
+  
+End If
+    
+    
+End Sub
+
+
+
+Sub ExtractWellTestData()
+
+
+Dim MapPath As String
+Dim DPRPath As String
+Dim MapName As String
+Dim DPRName As String
+Dim ConsName As String
+Dim rg As Range
+
+Dim TotalRows As Long
+Dim CurrentProgress As Double
+Dim ProgressPercentage As Double
+Dim BarWidth As Long
+Set rg = Worksheets("Parameters").Range("D1").CurrentRegion
+TotalRows = rg.Rows.Count
+'Application.ScreenUpdating = False
+Dim autDetectFileNAme As Boolean, AutoMultipleDPR As Boolean
+
+
+
+
+
+Call createList
+Call ResetHeader
+
+MapPath = ThisWorkbook.Worksheets("Parameters").Range("B2")
+DPRPath = ThisWorkbook.Worksheets("Parameters").Range("B3")
+'wbName = "Mapping_Anaguid.xlsx"
+
+Dim arrListConces As Variant
+arrListConces = Worksheets("Parameters").Range("D1").CurrentRegion
+'Worksheets("OutputDC").Range("A2").CurrentRegion.Clear
+Dim i As Long, t As Long
+Dim activeDay As String, activeMonth As String
+Dim myVar As String
+'Call CheckAllFileExists
+Call InitProgressBar
+
+
+
+
+Set dicDPRList = CreateObject("Scripting.Dictionary")
+
+Dim dt As Date: dt = Format(Sheet2.TextBoxDateAuto.Text, "[$-en-US]dd/mm/yyyy;@")
+Dim nbrDays As Integer
+nbrDays = Sheet2.ComboBoxDayNumber.Value
+'MsgBox (nbrDays)
+
+If (Sheet2.OptStandardName) Then
+nbrDays = 1
+Call StandardDPRName
+Call CheckAllFileExists
+End If
+
+'For i = LBound(dicDPRList, 1) To UBound(dicDPRList, 1)
+For t = 1 To nbrDays
+dt = CDate(Sheet2.TextBoxDateAuto.Text) - t + 1
+'MsgBox (dt)
+
+dt = Format(dt, "[$-en-US]dd/mm/yyyy;@")
+
+If (Sheet2.OptAutoName) Then
+
+Call AutoDPRname(dt)
+Call CheckAllFileExists
+End If
+
+
+'TextBox1.Text = " "
+For i = LBound(arrListConces, 1) + 1 To UBound(arrListConces, 1)
+
+'For i = 2 To 5
+'Debug.Print "***********-----------*************"
+'Worksheets("Main").TextBox1.NewLine
+'myVar = Worksheets("Main").TextBox1.Text
+'Worksheets("Main").TextBox1.Text = myVar & i & " : bb"
+'Worksheets("Main").Shapes("TextBox1").TextFrame.Characters.Text = myVar & "***********-----------*************"
+Debug.Print "Start file ", i - 1, " : ", arrListConces(i, 1), arrListConces(i, 3), arrListConces(i, 4)
+'TextBox1.Text = TextBox1.Text & "Start file " & i - 1 & " : " & arrListConces(i, 1) & vbCrLf
+
+ConsName = arrListConces(i, 1)
+MapName = arrListConces(i, 6)
+DPRName = arrListConces(i, 2)
+activeDay = arrListConces(i, 4)
+activeMonth = arrListConces(i, 3)
+progression.Label1.Caption = i & "/" & UBound(arrListConces, 1) & " : " & MapName & " en cours ... "
+progression.Date_Label.Caption = "Date: " & Format(dt, "dd mmm yyyy")
+CurrentProgress = i / TotalRows
+    BarWidth = progression.Border.Width * CurrentProgress
+    ProgressPercentage = Round(CurrentProgress * 100, 0)
+    progression.Bar.Width = BarWidth
+    progression.Text.Caption = ProgressPercentage & "% Complete"
+    
+    DoEvents
+
+If (activeDay = "1") Then
+
+If (CheckFileExists(MapPath & "\" & MapName)) Then
+
+
+Call PullMappingData(MapPath, MapName, "Mapping_Well_Test", "B", "K")
+Call RedWellTestDataFromDPR(DPRPath, DPRName, ConsName)
+'Debug.Print "END : ", ConsName, DPRName, MapName
+Else: MsgBox ("un des fichier " & MapName & " et " & DPRName & " n'existe pas dans le chemin defenis")
+End If
+
+      
+End If
+
+'CurrentProgress = i / TotalRows
+   ' BarWidth = progression.Border.Width * CurrentProgress
+  '  ProgressPercentage = Round(CurrentProgress * 100, 0)
+  '  progression.Bar.Width = BarWidth
+  '  progression.Text.Caption = ProgressPercentage & "% Complete"
+  '  DoEvents
+ 
+Next i
+
+dicDPRList.RemoveAll
+Next t
+
+
+Unload progression
+
+Call FormatLine
+
+Application.ScreenUpdating = True
+Sheet2.Activate
+MsgBox (" Fin de Traitement ")
+
+
+End Sub
+
+
+
+Sub RedWellTestDataFromDPR(ByVal DPRPath As String, _
+DPRName As String, indx As String)
+
+
+'Dim DPRPath As String
+'Dim MapName As String
+'Dim DPRName As String
+'Dim indx As String
+'
+'Call createList
+'Call ResetHeader
+'
+'
+''MapPath = ThisWorkbook.Worksheets("Parameters").Range("B2")
+'DPRPath = ThisWorkbook.Worksheets("Parameters").Range("B3")
+'
+'DPRName = "DPR_TPS.xlsx"
+'indx = "EL HAJEB GUEBIBA "
+
+
+Dim wsName As String, wbAlias As String
+Dim ref As String
+
+
+Dim rg As Range
+Dim num As Integer
+
+
+
+
+
+Set rg = Worksheets("Well_Test").Range("A1").CurrentRegion
+    num = rg.Rows.Count
+
+Dim arrMapping As Variant
+arrMapping = Worksheets("Template").Range("B1").CurrentRegion
+'wsName As String, cellRef As String
+
+Dim val As Variant
+Dim i As Long
+Dim WC As String
+Dim WCtmp As String
+Dim ubhi As String
+Dim uom As String
+Dim fact As Variant
+WCtmp = ""
+For i = LBound(arrMapping, 1) + 1 To UBound(arrMapping, 1)
+
+     wsName = arrMapping(i, 2)
+            wbAlias = arrMapping(i, 1)
+            DPRName = dicDPRList(wbAlias)
+
+'            If (wsName = "DPR" And wbAlias = "DPR") Then
+'            wsName = sCurentSheetName
+'            End If
+'
+'            If (wsName = "MLD" And wbAlias = "RAPPORT MLD") Then
+'            wsName = sCurentSheetName
+'            End If
+
+'Debug.Print wbAlias, DPRName, wsName
+'1 file 2 Sheet name  3 WellNameOperator  4 UBHI 5 Completion_name  6 Template   7 Attribut    8 Attribut_Code   9 Mapping-Ref 10 Unite
+
+
+If ((arrMapping(i, 9) <> 0) And (arrMapping(i, 6) = "WT")) Then
+
+
+'wsName = arrMapping(i, 1)
+ref = Replace(arrMapping(i, 9), ":", "")
+
+If (Left(ref, 1) = "?") Then
+val = GetCalculatedValue(DPRPath, DPRName, wsName, ref)
+End If
+
+If (Left(ref, 1) <> "?") Then
+
+val = GetValueFromDPRFile(DPRPath, DPRName, wsName, ref)
+End If
+
+
+
+'Debug.Print ref, val
+'MsgBox (val)
+'ThisWorkbook.Worksheets("Main").Cells(30, 1).Formula = val
+'val = ThisWorkbook.Worksheets("Main").Cells(30, 1).Formula
+
+        
+        
+        
+        uom = UCase(arrMapping(i, 10))
+        'Debug.Print uom
+        
+         '### calculate conversion
+        If IsNumeric(val) Then
+        If (uom <> "" And uom <> "0" And val <> "") Then
+        
+         'Debug.Print "Debut de Conversion pour  ", arrMapping(i, 9), " a lunite :", uom
+        'val = ConvertValue(uom, val)
+                    If dicUOM.Exists(uom) Then
+                    'If (dicUOM.Exists(uom)) Then
+                      fact = dicUOM(uom)
+                      'Debug.Print "Conversion de ", val, "en: "; uom, " avec: ", fact
+
+                      val = val * fact
+                      On Error Resume Next
+                      'Debug.Print "---- > Val converti = ", val
+                    End If
+        End If
+        End If
+        
+End If
+
+
+'Debug.Print DPRPath, DPRName, wsName, ref, val
+'Debug.Print arrMapping(i, 3) & " : " & arrMapping(i, 7) & " : " & ref & " = " & val
+'arrDCData.item(indx).item(dicCanevaDW(arrMapping(i, 4))) = val
+'Debug.Print "fill arraylist : ", arrDCData.item(indx).item(dicCanevaDC(arrMapping(i, 4)))
+WC = arrMapping(i, 5)
+ubhi = arrMapping(i, 4)
+If arrMapping(i, 8) = "WT004" Then
+val = WC
+'Debug.Print "WC", WC
+End If
+If arrMapping(i, 8) = "WT003" Then
+val = ubhi
+'Debug.Print "UBHI", ubhi
+End If
+If (WC <> WCtmp) Then
+num = num + 1
+WCtmp = WC
+End If
+
+If (arrMapping(i, 8) = "WT001") Then
+val = indx
+End If
+
+
+If dicCanevaWT.Exists(arrMapping(i, 8)) Then
+        rg.Cells(num, dicCanevaWT(arrMapping(i, 8))).Value = val
+        
+    Else
+        'MsgBox arrMapping(i, 7) & "  non existant dan le dictionnaire pour ." & indx
+    End If
+
+
+
+
+
+
+val = ""
+Next i
+
+
+'val = GetValueFromDPRFile(wbPath, wbName, wsName, ref)
+
+Exit Sub
+
+End Sub
+
+Sub WriteToCsvFile()
+
+Dim objFso
+Dim objTS
+Set objFso = CreateObject("Scripting.FileSystemObject")
+Set objTS = CreateObject("Scripting.FileSystemObject")
+
+
+Dim sFolder As String
+
+
+    ' Get used range rows count in your worksheet.
+    Dim iTotalRows As Integer
+    iTotalRows = Worksheets("OutputDW").UsedRange.Rows.Count
+        
+    ' Get used range columns count in your worksheet.
+    Dim iTotalCols As Integer
+    iTotalCols = Worksheets("OutputDW").UsedRange.Columns.Count
+    
+    Dim iRowCnt, iColCnt As Integer
+    Dim sText, sTextTmp As String
+    
+    ' Iterate (or loop) through each row and column.
+    For iRowCnt = 1 To iTotalRows
+        For iColCnt = 1 To iTotalCols
+            ' Store the data in a variable.
+            sTextTmp = Worksheets("OutputDW").Cells(iRowCnt, iColCnt)
+            sTextTmp = Replace(sTextTmp, vbCr, " ")
+            sTextTmp = Replace(sTextTmp, vbLf, " ")
+            sTextTmp = Replace(sTextTmp, vbCrLf, " ")
+            
+           ' sText = sText & Worksheets("OutputDW").Cells(iRowCnt, iColCnt) & ","
+           sText = sText & sTextTmp & ","
+           
+        Next iColCnt
+        
+        sText = sText & vbCrLf      ' For next row.
+    Next iRowCnt
+ 
+    
+    sFolder = "c:\temp\etap\output"
+    Set objTS = objFso.CreateTextFile(sFolder & "\Daily_Well.csv")
+    
+    objTS.WriteLine sText   '
+    objTS.Close             ' Close the file.
+    
+   
+   sText = ""
+   
+   For iRowCnt = 1 To iTotalRows
+        For iColCnt = 1 To iTotalCols
+            ' Store the data in a variable.
+            sTextTmp = Worksheets("OutputDC").Cells(iRowCnt, iColCnt)
+            sTextTmp = Replace(sTextTmp, vbCr, " ")
+            sTextTmp = Replace(sTextTmp, vbLf, " ")
+            sTextTmp = Replace(sTextTmp, vbCrLf, " ")
+            
+           ' sText = sText & Worksheets("OutputDW").Cells(iRowCnt, iColCnt) & ","
+           sText = sText & sTextTmp & ","
+           
+        Next iColCnt
+        
+        sText = sText & vbCrLf      ' For next row.
+    Next iRowCnt
+ 
+    
+    sFolder = "c:\temp\etap\output"
+    Set objTS = objFso.CreateTextFile(sFolder & "\Daily_Concession.csv")
+    
+    objTS.WriteLine sText   '
+    objTS.Close
+   
+   
+   
+   
+   
+    
+End Sub
+
+
+
+Sub AutoDPRname(ByVal dt As Date)
+'MsgBox (Format(Date, "[$-en-US]yyyymmdd;@"))
+
+Dim iDayNumber As Integer
+'Dim dt As Date: dt = Format(Sheet2.TextBoxDateAuto.Text, "[$-en-US]dd/mm/yyyy;@")
+'MsgBox (Format(dt, "[$-en-US]dd/mm/yyyy;@"))
+iDayNumber = DateDiff("d", CDate("1/1/" & Year(dt)), Format(dt, "[$-en-US]dd/mm/yyyy;@")) + 1
+'MsgBox (iDayNumber)
+
+'Dim mois As String
+'mois = Month(dt)
+'MsgBox (Month(dt))
+'MsgBox (dt - 1)
+'mois = dicMonth(mois)
+'MsgBox (mois)
+
+
+
+
+    Dim wk As Worksheet
+    Set wk = ThisWorkbook.Worksheets("Parameters")
+    
+    Dim arrListDPR As Variant
+    arrListDPR = Worksheets("Parameters").Range("K1").CurrentRegion
+    
+    Dim rg1 As Range, rg As Range
+    
+    Dim i As Long, numDW As Long
+    Set rg = wk.Range("T1").CurrentRegion
+    Set rg1 = wk.Range("B1").CurrentRegion
+    numDW = rg1.Rows.Count
+    
+    Dim sLeft As String, ext As String, sRight As String, DPRAlias As String, DPRFileAlias As String, DPRFileName As String, DFromat As String
+    
+    dt = Format(dt, "[$-en-US]dd/mm/yyyy;@")
+    
+    '1DPR Alias   2DPR_File_Alias   3ext 4Format  5L   6R   7pref    8suf
+
+    For i = LBound(arrListDPR, 1) + 1 To UBound(arrListDPR, 1)
+    DPRAlias = arrListDPR(i, 1)
+    DPRFileAlias = arrListDPR(i, 2)
+    ext = "." & arrListDPR(i, 3)
+    DFromat = arrListDPR(i, 4)
+    sLeft = arrListDPR(i, 5)
+    sRight = arrListDPR(i, 6)
+        'WorksheetFunction.Text
+    If (sLeft <> "") Then
+    sLeft = Replace(sLeft, "0", "")
+    DPRFileName = WorksheetFunction.Text(dt, DFromat) & sLeft & DPRFileAlias & ext
+    End If
+    If (sRight <> "") Then
+    sRight = Replace(sRight, "0", "")
+    DPRFileName = DPRFileAlias & sRight & WorksheetFunction.Text(dt, DFromat) & arrListDPR(i, 8) & ext
+    End If
+      
+    If (DPRAlias = "RAPPORT MLD") Then
+    DPRFileName = DPRFileAlias & sRight & iDayNumber & ext
+    End If
+    
+    
+    If (DPRAlias = "HSD Daily Prod") Then
+    DPRFileName = DPRFileAlias & sRight & Format(dt, DFromat) & arrListDPR(i, 8) & ext
+    End If
+   
+    
+    'Debug.Print DPRAlias, DPRFileName
+    sLeft = ""
+    sRight = ""
+    
+    
+    
+    
+    
+    dicDPRList.Add DPRAlias, DPRFileName
+    
+    
+    
+    Next i
+
+
+
+
+
+
+End Sub
+
+Sub StandardDPRName()
+'MsgBox (Format(Date, "[$-en-US]yyyymmdd;@"))
+
+    Dim wk As Worksheet
+    Set wk = ThisWorkbook.Worksheets("Parameters")
+    Dim arrListDPR As Variant, k As Variant
+    arrListDPR = Worksheets("Parameters").Range("K1").CurrentRegion
+        
+    
+    Dim i As Long
+    Dim ext As String, DPRAlias As String, DPRFileAlias As String, DPRFileName As String
+   
+    
+    '1DPR Alias   2DPR_File_Alias   3ext 4Format  5L   6R   7pref    8suf
+
+    For i = LBound(arrListDPR, 1) + 1 To UBound(arrListDPR, 1)
+    DPRAlias = arrListDPR(i, 1)
+    DPRFileAlias = arrListDPR(i, 2)
+    ext = "." & arrListDPR(i, 3)
+    DPRFileName = DPRAlias & ext
+    
+    dicDPRList.Add DPRAlias, DPRFileName
+    
+    Next i
+    
+    
+
+End Sub
+
+
+Sub RenameCopyDPRFiles()
+
+Dim oFSO As Object
+Dim oFolder As Object
+Dim oFile As Object
+Dim i As Integer, j As Integer
+Dim DPRName As String, StdName As String, PathSource As String, search As String, PathDest As String, msg As String, copyPath As String
+Dim check As String
+Dim answer As Integer, lenDPR As Integer, lenSTD As Integer, pos As Integer
+
+
+
+PathSource = ThisWorkbook.Worksheets("Parameters").Range("B6")
+PathDest = ThisWorkbook.Worksheets("Parameters").Range("B7")
+
+Dim listDPR As Variant
+Dim listNameStandard As Variant
+
+Set oFSO = CreateObject("Scripting.FileSystemObject")
+Set oFolder = oFSO.GetFolder(PathSource)
+
+For Each oFile In oFolder.Files
+    Worksheets("files_parm").Cells(i + 1, 1) = oFile.Name
+
+    i = i + 1
+
+Next oFile
+
+listDPR = Worksheets("files_parm").Range("A1").CurrentRegion
+listNameStandard = Worksheets("Parameters").Range("L1").CurrentRegion
+
+
+
+For i = LBound(listDPR, 1) To UBound(listDPR, 1)
+DPRName = listDPR(i, 1)
+lenDPR = Len(DPRName)
+
+    For j = LBound(listNameStandard, 1) To UBound(listNameStandard, 1)
+    StdName = listNameStandard(j, 1)
+    pos = InStr(DPRName, StdName)
+    
+    If (pos > 0) Then
+    lenSTD = Len(StdName)
+    check = Mid(DPRName, pos, lenSTD)
+    'Debug.Print " Extracted " & "  ---> " & check
+    If (check = StdName) Then
+    'Debug.Print search, DPRName & "  ---> " & StdName & "." & listNameStandard(j, 3)
+    msg = msg & DPRName & "  ---> " & StdName & vbCrLf
+    Exit For
+    End If
+    
+    
+    
+    End If
+    
+    
+    
+    
+    
+'    If (search > 1) Then
+'    'Debug.Print search, DPRName & "  ---> " & StdName
+'    msg = msg & DPRName & "  ---> " & StdName & vbCrLf
+'    End If
+'
+'    search = 0
+    
+    Next j
+
+Next i
+'msgbox:
+'
+msg = msg & vbCrLf & "Destination : " & PathDest
+answer = MsgBox(msg _
+& vbNewLine & " Etes-vous sure de vouloir continuer ? ", vbQuestion + vbYesNo + vbDefaultButton2, "Confirmation de copier ver ?")
+
+If answer = vbYes Then
+Dim xlobj As Object
+Set xlobj = CreateObject("Scripting.FileSystemObject")
+'object.copyfile,source,destination,file overright(True is default)
+
+
+
+For i = LBound(listDPR, 1) To UBound(listDPR, 1)
+DPRName = listDPR(i, 1)
+lenDPR = Len(DPRName)
+    For j = LBound(listNameStandard, 1) To UBound(listNameStandard, 1)
+    StdName = listNameStandard(j, 1)
+    pos = InStr(DPRName, StdName)
+    
+    If (pos > 0) Then
+    lenSTD = Len(StdName)
+    check = Mid(DPRName, pos, lenSTD)
+    'Debug.Print " Extracted " & "  ---> " & check
+    If (check = StdName) Then
+    
+    'PathSource = PathSource & "\" & DPRName
+    'PathDest = PathSource & "\" & StdName & ".xlsx"
+    
+    xlobj.CopyFile PathSource & "\" & DPRName, PathDest & "\" & StdName & "." & listNameStandard(j, 3), True
+    'FileCopy PathSource, PathSource
+    'Debug.Print PathSource & "\" & DPRName, PathDest & "\" & StdName & "." & listNameStandard(j, 3)
+    Exit For
+    End If
+    
+    
+    
+    End If
+    
+    Next j
+    Next i
+    Set xlobj = Nothing
+    
+    
+    MsgBox ("Fichier DPR renomer et copier dans: " & PathDest)
+    
+    
+End If
+
+
+
+'FileSystemObject.CopyFile "c:\mydocuments\letters\*.doc", "c:\tempfolder\"
+'Name "C:\VBA Folder\Sample file 1.xlsx" As "C:\VBA Folder\Sample file 2.xlsx"
+'End If
+
+End Sub
+
+
+Sub PreCheckAllFileExists()
+
+Dim strFileExists As String, MapPath As String, DPRPath As String, wbPath As String
+
+Dim arrListDPRfiles As Variant, k As Variant
+arrListDPRfiles = Worksheets("Parameters").Range("D1").CurrentRegion
+'Worksheets("OutputDC").Range("A2").CurrentRegion.Clear
+Dim i As Long
+Dim myVar As String
+'Call InitProgressBar
+MapPath = ThisWorkbook.Worksheets("Parameters").Range("B2")
+DPRPath = ThisWorkbook.Worksheets("Parameters").Range("B3")
+'TextBox1.Text = " "
+'Concession  Active  DPR file name   Mapping
+Dim Results As String
+
+
+
+
+
+
+For Each k In dicDPRList.keys
+    'Debug.Print k, dicDPRList(k)
+         
+    wbPath = DPRPath & "\" & dicDPRList(k)
+    strFileExists = Dir(wbPath)
+
+   If strFileExists = "" Then
+   Results = Results & "le fichier :" & dicDPRList(k) & " n'existe Pas " & vbCrLf
+   End If
+
+
+'Next i
+Next
+    
+ 
+If Results = "" Then Results = "Controle des fichier : OK tous les fichier existe "
+
+MsgBox Prompt:=Results, Title:="Controle l'existance des fichiers"
+End Sub
+
+
+
+Sub RenameWorksheet()
+'declare variables
+Dim wb As Workbook
+Dim ws As Worksheet
+
+
+Dim DPRName As String, StdName As String, PathSource As String, search As String, PathDest As String, msg As String, copyPath As String
+Dim check As String
+Dim answer As Integer, lenDPR As Integer, lenSTD As Integer, pos As Integer
+
+
+Dim dt As Date: dt = Format(Sheet2.TextBoxDateAuto.Text, "[$-en-US]dd/mm/yyyy;@")
+
+Set dicDPRList = CreateObject("Scripting.Dictionary")
+
+'MsgBox (dt)
+
+'dt = Format(dt, "[$-en-US]dd/mm/yyyy;@")
+
+If Sheet2.OptStandardName Then
+Call StandardDPRName
+Else: Call AutoDPRname(dt)
+End If
+
+
+Application.AskToUpdateLinks = False
+Application.DisplayAlerts = False
+
+
+If (FilePreparation.CheckBox3.Value = True) Then
+
+
+DPRName = dicDPRList("RAPPORT MLD")
+'Debug.Print "find ", DPRName
+
+PathSource = ThisWorkbook.Worksheets("Parameters").Range("B6") & "\" & DPRName
+
+Set wb = Workbooks.Open(PathSource)
+'open and activate a workbook
+wb.Activate
+Set ws = Sheets(1)
+'rename the worksheet in the workbook specified above
+ws.Name = "MLD"
+wb.Close SaveChanges:=True
+msg = "Repertoire : :" & PathSource & vbCrLf
+msg = msg & "Sheet du DPR :" & DPRName & " Renomer ver 'MLD' avec succe " & vbCrLf
+End If
+
+If (FilePreparation.CheckBox2.Value = True) Then
+
+DPRName = dicDPRList("DPR")
+'Debug.Print "find ", DPRName
+PathSource = ThisWorkbook.Worksheets("Parameters").Range("B6") & "\" & DPRName
+Set wb = Workbooks.Open(PathSource)
+'open and activate a workbook
+wb.Activate
+Set ws = Sheets(1)
+'rename the worksheet in the workbook specified above
+ws.Name = "RAP"
+wb.Close SaveChanges:=True
+
+Application.AskToUpdateLinks = True
+Application.DisplayAlerts = True
+msg = msg & "Sheet du DPR :" & DPRName & " Renomer ver 'RAP' avec succe " & vbCrLf
+End If
+MsgBox (msg)
+
+
+End Sub
+
+
+Sub CheckAllFileExistsWithLogs(ByVal dt As String)
+
+Dim strFileExists As String, MapPath As String, DPRPath As String, wbPath As String
+
+Dim arrListDPRfiles As Variant, k As Variant
+arrListDPRfiles = Worksheets("Parameters").Range("D1").CurrentRegion
+'Worksheets("OutputDC").Range("A2").CurrentRegion.Clear
+Dim i As Long
+Dim myVar As String
+'Call InitProgressBar
+MapPath = ThisWorkbook.Worksheets("Parameters").Range("B2")
+DPRPath = ThisWorkbook.Worksheets("Parameters").Range("B3")
+'TextBox1.Text = " "
+'Concession  Active  DPR file name   Mapping
+Dim Results As String
+Dim rg As Range
+Dim num As Integer
+Set rg = Worksheets("Logs").Range("A1").CurrentRegion
+    num = rg.Rows.Count + 1
+
+
+
+For Each k In dicDPRList.keys
+    'Debug.Print k, dicDPRList(k)
+         
+    wbPath = DPRPath & "\" & dicDPRList(k)
+    strFileExists = Dir(wbPath)
+
+   If strFileExists = "" Then
+   rg.Cells(num, 1).Value = dt
+   rg.Cells(num, 2).Value = dicDPRList(k)
+   rg.Cells(num, 3).Value = "Existe Pas"
+   
+   Else
+   rg.Cells(num, 1).Value = dt
+   rg.Cells(num, 2).Value = dicDPRList(k)
+   rg.Cells(num, 3).Value = "Existe"
+   End If
+num = num + 1
+Next
+    
+
+End Sub
+
+
+
+Sub GetSheetName(ByVal DPRFileAlias As String)
+'ByVal DPRFileNane As String
+'declare variables
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim wsName As String
+
+
+
+Dim DPRName As String, StdName As String, PathSource As String, search As String, PathDest As String, msg As String
+
+
+
+
+
+
+
+'MsgBox (dt)
+
+'dt = Format(dt, "[$-en-US]dd/mm/yyyy;@")
+
+
+
+
+Application.AskToUpdateLinks = False
+Application.DisplayAlerts = False
+
+'DPRName = dicDPRList("RAPPORT MLD")
+DPRName = dicDPRList(DPRFileAlias)
+'DPRName = "DPR 25 MAY.xlsx"
+'Debug.Print "find ", DPRName
+
+PathSource = ThisWorkbook.Worksheets("Parameters").Range("B3") & "\" & DPRName
+
+
+
+
+Set wb = Workbooks.Open(PathSource)
+'open and activate a workbook
+wb.Activate
+Set ws = Sheets(1)
+wsName = ws.Name
+'rename the worksheet in the workbook specified above
+
+wb.Close SaveChanges:=False
+
+
+msg = msg & "Sheet Name :" & DPRName & " " & wsName & vbCrLf
+
+MsgBox (msg)
+sCurentSheetName = wsName
+
+End Sub
+
+
+Sub RenameWorksheet_DPR()
+'declare variables
+Dim wb As Workbook
+Dim ws As Worksheet
+
+
+Dim DPRName As String, StdName As String, PathSource As String, search As String, PathDest As String, msg As String, copyPath As String
+Dim check As String
+Dim answer As Integer, lenDPR As Integer, lenSTD As Integer, pos As Integer
+
+
+Dim dt As Date: dt = Format(Sheet2.TextBoxDateAuto.Text, "[$-en-US]dd/mm/yyyy;@")
+
+Set dicDPRList = CreateObject("Scripting.Dictionary")
+
+'MsgBox (dt)
+
+'dt = Format(dt, "[$-en-US]dd/mm/yyyy;@")
+
+If Sheet2.OptStandardName Then
+Call StandardDPRName
+Else: Call AutoDPRname(dt)
+End If
+
+
+Application.AskToUpdateLinks = False
+Application.DisplayAlerts = False
+
+
+
+If (FilePreparation.CheckBox3.Value = True) Then
+'Debug.Print "find ", DPRName
+DPRName = dicDPRList("RAPPORT MLD")
+PathSource = ThisWorkbook.Worksheets("Parameters").Range("B6") & "\" & DPRName
+
+Set wb = Workbooks.Open(PathSource)
+'open and activate a workbook
+wb.Activate
+Set ws = Sheets(1)
+'rename the worksheet in the workbook specified above
+ws.Name = "MLD"
+wb.Close SaveChanges:=True
+msg = "Repertoire : :" & PathSource & vbCrLf
+msg = msg & "Sheet du DPR :" & DPRName & " Renomer ver 'MLD' avec succe " & vbCrLf
+End If
+
+If (FilePreparation.CheckBox2.Value = True) Then
+
+DPRName = dicDPRList("DPR")
+'Debug.Print "find ", DPRName
+PathSource = ThisWorkbook.Worksheets("Parameters").Range("B6") & "\" & DPRName
+Set wb = Workbooks.Open(PathSource)
+'open and activate a workbook
+wb.Activate
+Set ws = Sheets(1)
+'rename the worksheet in the workbook specified above
+ws.Name = "RAP"
+wb.Close SaveChanges:=True
+End If
+
+
+Application.AskToUpdateLinks = True
+Application.DisplayAlerts = True
+msg = msg & "Sheet du DPR :" & DPRName & " Renomer ver 'RAP' avec succe " & vbCrLf
+
+MsgBox (msg)
+
+
+End Sub
+
+
+Sub ConvertSM_To_NM()
+
+
+Dim ws As Worksheet
+    
+    Dim rg As Range
+    Dim i As Integer, nr As Integer
+    Dim SmToNm As Variant, NmtoSm As Variant
+    SmToNm = ThisWorkbook.Worksheets("Parameters").Range("B8")
+     NmtoSm = ThisWorkbook.Worksheets("Parameters").Range("B9")
+   
+   '---------------Conversion SM3 to NM3 Daily
+   If (AutoCorrect.CheckBoxDailySm2Nm.Enabled = True) Then
+   
+    Set ws = ThisWorkbook.Worksheets("OutputDC")
+    Set rg = ws.Range("A1").CurrentRegion
+    nr = rg.Rows.Count
+    For i = 2 To rg.Rows.Count
+'         MsgBox (rg.Cells(i, 5).Value)
+         'production nm3
+        If ((IsEmpty(rg.Cells(i, 5).Value) = False) And (IsEmpty(rg.Cells(i, 6).Value) = True)) Then
+           On Error Resume Next
+           rg.Cells(i, 6).Value = rg.Cells(i, 5).Value * SmToNm
+           rg.Cells(i, 6).Font.Color = -16776961
+           rg.Cells(i, 6).Font.TintAndShade = 0
+                 
+         End If
+
+'         'Expidition nm3
+        If ((IsEmpty(rg.Cells(i, 7).Value) = False) And (IsEmpty(rg.Cells(i, 8).Value) = True)) Then
+        On Error Resume Next
+           rg.Cells(i, 8).Value = rg.Cells(i, 7).Value * SmToNm
+           rg.Cells(i, 8).Font.Color = -16776961
+           rg.Cells(i, 8).Font.TintAndShade = 0
+         End If
+        
+         'Gaz HP nm3
+         If ((IsEmpty(rg.Cells(i, 10).Value) = False) And (IsEmpty(rg.Cells(i, 11).Value) = True)) Then
+         On Error Resume Next
+         rg.Cells(i, 11).Value = rg.Cells(i, 10).Value * SmToNm
+         rg.Cells(i, 11).Font.Color = -16776961
+         rg.Cells(i, 11).Font.TintAndShade = 0
+         End If
+         
+         'Gaz HP nm3
+         If ((IsEmpty(rg.Cells(i, 13).Value) = False) And (IsEmpty(rg.Cells(i, 14).Value) = True)) Then
+         On Error Resume Next
+         rg.Cells(i, 14).Value = rg.Cells(i, 13).Value * SmToNm
+         rg.Cells(i, 14).Font.Color = -16776961
+         rg.Cells(i, 14).Font.TintAndShade = 0
+         End If
+
+'         'Torchage nm3
+        If ((IsEmpty(rg.Cells(i, 21).Value) = False) And (IsEmpty(rg.Cells(i, 52).Value) = True)) Then
+        On Error Resume Next
+         rg.Cells(i, 52).Value = rg.Cells(i, 21).Value * SmToNm
+         rg.Cells(i, 52).Font.Color = -16776961
+         rg.Cells(i, 52).Font.TintAndShade = 0
+         End If
+        
+      'Debug.Print rg.Cells(i, 2).Value, rg.Cells(i, 3).Value
+    Next i
+    
+    End If
+    
+    '---------------Conversion SM3 to NM3 Monthly
+    If (AutoCorrect.CheckBoxMonthlySm2Nm.Enabled = True) Then
+    Set ws = ThisWorkbook.Worksheets("OutputMC")
+    Set rg = ws.Range("A1").CurrentRegion
+    nr = rg.Rows.Count
+    For i = 2 To rg.Rows.Count
+'         MsgBox (rg.Cells(i, 5).Value)
+         'production nm3
+        If ((IsEmpty(rg.Cells(i, 5).Value) = False) And (IsEmpty(rg.Cells(i, 6).Value) = True)) Then
+        On Error Resume Next
+           rg.Cells(i, 6).Value = rg.Cells(i, 5).Value * SmToNm
+           rg.Cells(i, 6).Font.Color = -16776961
+           rg.Cells(i, 6).Font.TintAndShade = 0
+                
+         End If
+
+'         'Expidition nm3
+        If ((IsEmpty(rg.Cells(i, 7).Value) = False) And (IsEmpty(rg.Cells(i, 8).Value) = True)) Then
+        On Error Resume Next
+           rg.Cells(i, 8).Value = rg.Cells(i, 7).Value * SmToNm
+           rg.Cells(i, 8).Font.Color = -16776961
+           rg.Cells(i, 8).Font.TintAndShade = 0
+         End If
+
+         If ((IsEmpty(rg.Cells(i, 10).Value) = False) And (IsEmpty(rg.Cells(i, 11).Value) = True)) Then
+         On Error Resume Next
+         rg.Cells(i, 11).Value = rg.Cells(i, 10).Value * SmToNm
+         rg.Cells(i, 11).Font.Color = -16776961
+         rg.Cells(i, 11).Font.TintAndShade = 0
+         End If
+         
+         'Gaz HP nm3
+         If ((IsEmpty(rg.Cells(i, 13).Value) = False) And (IsEmpty(rg.Cells(i, 14).Value) = True)) Then
+         On Error Resume Next
+         rg.Cells(i, 14).Value = rg.Cells(i, 13).Value * SmToNm
+         rg.Cells(i, 14).Font.Color = -16776961
+         rg.Cells(i, 14).Font.TintAndShade = 0
+         End If
+        
+        
+'         'Torchage nm3
+        If ((IsEmpty(rg.Cells(i, 21).Value) = False) And (IsEmpty(rg.Cells(i, 52).Value) = True)) Then
+        On Error Resume Next
+         rg.Cells(i, 54).Value = rg.Cells(i, 21).Value * SmToNm
+         rg.Cells(i, 54).Font.Color = -16776961
+         rg.Cells(i, 54).Font.TintAndShade = 0
+         End If
+           
+    Next i
+    
+    End If
+    
+    
+    
+    
+'---------------Conversion NM3 to SM3 Daily
+  If (AutoCorrect.CheckBoxDailyNm2Sm.Enabled = True) Then
+   
+    Set ws = ThisWorkbook.Worksheets("OutputDC")
+    Set rg = ws.Range("A1").CurrentRegion
+    nr = rg.Rows.Count
+    For i = 2 To rg.Rows.Count
+'         MsgBox (rg.Cells(i, 5).Value)
+         'production SM3
+        If ((IsEmpty(rg.Cells(i, 6).Value) = False) And (IsEmpty(rg.Cells(i, 5).Value) = True)) Then
+        On Error Resume Next
+           rg.Cells(i, 5).Value = rg.Cells(i, 6).Value * NmtoSm
+           rg.Cells(i, 5).Font.Color = -16776961
+           rg.Cells(i, 5).Font.TintAndShade = 0
+                 
+         End If
+
+'         'Expidition SM3
+        If ((IsEmpty(rg.Cells(i, 8).Value) = False) And (IsEmpty(rg.Cells(i, 7).Value) = True)) Then
+        On Error Resume Next
+           rg.Cells(i, 7).Value = rg.Cells(i, 8).Value * NmtoSm
+           rg.Cells(i, 7).Font.Color = -16776961
+           rg.Cells(i, 7).Font.TintAndShade = 0
+         End If
+        
+         'Gaz HP SM3
+         If ((IsEmpty(rg.Cells(i, 11).Value) = False) And (IsEmpty(rg.Cells(i, 10).Value) = True)) Then
+         On Error Resume Next
+         rg.Cells(i, 10).Value = rg.Cells(i, 11).Value * NmtoSm
+         rg.Cells(i, 10).Font.Color = -16776961
+         rg.Cells(i, 10).Font.TintAndShade = 0
+         End If
+         
+         'Gaz HP SM3
+         If ((IsEmpty(rg.Cells(i, 14).Value) = False) And (IsEmpty(rg.Cells(i, 13).Value) = True)) Then
+         On Error Resume Next
+         rg.Cells(i, 13).Value = rg.Cells(i, 14).Value * NmtoSm
+         rg.Cells(i, 13).Font.Color = -16776961
+         rg.Cells(i, 13).Font.TintAndShade = 0
+         End If
+
+'         'Torchage SM3
+        If ((IsEmpty(rg.Cells(i, 52).Value) = False) And (IsEmpty(rg.Cells(i, 21).Value) = True)) Then
+        On Error Resume Next
+         rg.Cells(i, 21).Value = rg.Cells(i, 52).Value * NmtoSm
+         rg.Cells(i, 21).Font.Color = -16776961
+         rg.Cells(i, 21).Font.TintAndShade = 0
+         End If
+        
+      'Debug.Print rg.Cells(i, 2).Value, rg.Cells(i, 3).Value
+    Next i
+    
+    End If
+    
+    '---------------Conversion NM3 to SM3 Monthly
+    If (AutoCorrect.CheckBoxMonthlyNm2Sm.Enabled = True) Then
+   
+    Set ws = ThisWorkbook.Worksheets("OutputMC")
+    Set rg = ws.Range("A1").CurrentRegion
+    nr = rg.Rows.Count
+    For i = 2 To rg.Rows.Count
+'         MsgBox (rg.Cells(i, 5).Value)
+         'production SM3
+        If ((IsEmpty(rg.Cells(i, 6).Value) = False) And (IsEmpty(rg.Cells(i, 5).Value) = True)) Then
+        On Error Resume Next
+           rg.Cells(i, 5).Value = rg.Cells(i, 6).Value * NmtoSm
+           rg.Cells(i, 5).Font.Color = -16776961
+           rg.Cells(i, 5).Font.TintAndShade = 0
+                 
+         End If
+
+'         'Expidition SM3
+        If ((IsEmpty(rg.Cells(i, 8).Value) = False) And (IsEmpty(rg.Cells(i, 7).Value) = True)) Then
+        On Error Resume Next
+           rg.Cells(i, 7).Value = rg.Cells(i, 8).Value * NmtoSm
+           rg.Cells(i, 7).Font.Color = -16776961
+           rg.Cells(i, 7).Font.TintAndShade = 0
+         End If
+        
+         'Gaz HP SM3
+         If ((IsEmpty(rg.Cells(i, 11).Value) = False) And (IsEmpty(rg.Cells(i, 10).Value) = True)) Then
+         On Error Resume Next
+         rg.Cells(i, 10).Value = rg.Cells(i, 11).Value * NmtoSm
+         rg.Cells(i, 10).Font.Color = -16776961
+         rg.Cells(i, 10).Font.TintAndShade = 0
+         End If
+         
+         'Gaz HP SM3
+         If ((IsEmpty(rg.Cells(i, 14).Value) = False) And (IsEmpty(rg.Cells(i, 13).Value) = True)) Then
+         On Error Resume Next
+         rg.Cells(i, 13).Value = rg.Cells(i, 14).Value * NmtoSm
+         rg.Cells(i, 13).Font.Color = -16776961
+         rg.Cells(i, 13).Font.TintAndShade = 0
+         End If
+
+'         'Torchage SM3
+        If ((IsEmpty(rg.Cells(i, 54).Value) = False) And (IsEmpty(rg.Cells(i, 21).Value) = True)) Then
+        On Error Resume Next
+         rg.Cells(i, 21).Value = rg.Cells(i, 54).Value * NmtoSm
+         rg.Cells(i, 21).Font.Color = -16776961
+         rg.Cells(i, 21).Font.TintAndShade = 0
+         End If
+        
+      'Debug.Print rg.Cells(i, 2).Value, rg.Cells(i, 3).Value
+    Next i
+    
+    End If
+    
+    
+    
+    
+    
+  MsgBox ("Fin de la Conversion ")
+
+
+
+End Sub

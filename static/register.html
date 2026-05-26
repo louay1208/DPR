@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account — DPR Manager</title>
+    <link rel="icon" type="image/png" href="/img/etap-logo.png">
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+    <div class="auth-page">
+        <!-- Left Side: Branding -->
+        <div class="auth-left">
+            <div class="auth-brand">
+                <img src="/img/etap-logo.png" alt="ETAP Logo">
+                <div class="auth-brand-text">
+                    <div class="title" data-i18n="sidebar.title">DPR Manager</div>
+                    <div class="subtitle" data-i18n="sidebar.subtitle">Production Data Analytics</div>
+                </div>
+            </div>
+            
+            <div class="auth-illustration">
+                <h2><span data-i18n="auth.illus.r_title1">Join the Future of</span><br><span data-i18n="auth.illus.r_title2">Data Management</span></h2>
+                <ul class="auth-features">
+                    <li><div class="icon">⚡</div> <span data-i18n="auth.illus.r_f1">Fast & Reliable Extractions</span></li>
+                    <li><div class="icon">📊</div> <span data-i18n="auth.illus.r_f2">Advanced Analytical Dashboards</span></li>
+                    <li><div class="icon">🔒</div> <span data-i18n="auth.illus.r_f3">Enterprise-Grade Security</span></li>
+                </ul>
+            </div>
+            
+            <div style="z-index: 1; font-size: 0.85rem; color: var(--text-muted);">
+                &copy; 2026 ETAP. All rights reserved.
+            </div>
+        </div>
+        
+        <!-- Right Side: Form -->
+        <div class="auth-right">
+            <div style="position: absolute; top: 20px; right: 20px;">
+                <button class="btn btn-outline btn-sm lang-toggle" id="lang-toggle" onclick="I18n.toggle()">FR</button>
+            </div>
+            <div class="auth-form-container" style="max-width: 540px;">
+                <div class="auth-header">
+                    <h1 data-i18n="auth.register.title">Create your account</h1>
+                    <p data-i18n="auth.register.subtitle">Get started with DPR Manager in minutes</p>
+                </div>
+                
+                <div id="auth-error" class="auth-error"></div>
+                
+                <form id="register-form" class="auth-form">
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label" for="fullname" data-i18n="auth.register.name">Full Name</label>
+                            <div class="input-with-icon">
+                                <span class="input-icon">👤</span>
+                                <input type="text" id="fullname" class="form-input" placeholder="John Doe" required data-i18n="auth.register.name">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label" for="role" data-i18n="auth.register.role">Role</label>
+                            <select id="role" class="form-input" required>
+                                <option value="operator" data-i18n="auth.register.role.op">Operator</option>
+                                <option value="engineer" data-i18n="auth.register.role.eng">Engineer</option>
+                                <option value="manager" data-i18n="auth.register.role.mgr">Manager</option>
+                                <option value="admin" data-i18n="auth.register.role.adm">Administrator</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email" data-i18n="auth.login.email">Email Address</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">✉</span>
+                            <input type="email" id="email" class="form-input" placeholder="name@company.com" required data-i18n="auth.login.email">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="company" data-i18n="auth.register.company">Company / Organization</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">🏢</span>
+                            <input type="text" id="company" class="form-input" placeholder="ETAP" required data-i18n="auth.register.company">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="password" data-i18n="auth.register.pwd">Password</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="password" class="form-input" placeholder="Create a secure password" required data-i18n="auth.register.pwd_ph">
+                            <button type="button" class="password-toggle" onclick="Auth.togglePassword('password')" title="Toggle visibility">👁</button>
+                        </div>
+                        <div class="password-strength">
+                            <div class="strength-bar-container">
+                                <div id="strength-bar" class="strength-bar"></div>
+                            </div>
+                            <div id="strength-text" class="strength-text"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="confirm-password" data-i18n="auth.register.confirm">Confirm Password</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="confirm-password" class="form-input" placeholder="Confirm your password" required data-i18n="auth.register.confirm">
+                            <button type="button" class="password-toggle" onclick="Auth.togglePassword('confirm-password')" title="Toggle visibility">👁</button>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-options">
+                        <label class="form-check" style="display:flex;align-items:flex-start;gap:8px;font-size:0.9rem;color:var(--text-secondary)">
+                            <input type="checkbox" id="terms" style="margin-top: 4px;" required> 
+                            <span><span data-i18n="auth.register.terms">I agree to the</span> <a href="#" style="color:var(--info);text-decoration:none" data-i18n="auth.register.tos">Terms of Service</a> <span data-i18n="auth.register.and">and</span> <a href="#" style="color:var(--info);text-decoration:none" data-i18n="auth.register.privacy">Privacy Policy</a></span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="auth-btn" data-i18n="auth.register.btn">Create Account</button>
+                </form>
+                
+                <div class="auth-footer">
+                    <span data-i18n="auth.register.footer1">Already have an account?</span> <a href="/login.html" data-i18n="auth.register.footer2">Sign in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/i18n.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            I18n.apply();
+        });
+    </script>
+</body>
+</html>

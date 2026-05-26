@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Diagramme de Gantt — DPR Analytics Hub</title>
+<style>
+  @page { size: A3 landscape; margin: 10mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #eee;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .page {
+    background: white;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    padding: 30px 24px;
+    width: min(95vw, 1100px);
+  }
+  @media print {
+    body { background: white; padding: 0; }
+    .page { box-shadow: none; width: 100%; padding: 10mm; }
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 26px;
+    color: #1a3c5e;
+    border: 3px solid #1a3c5e;
+    display: inline-block;
+    padding: 8px 30px;
+    margin: 0 auto 6px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+  .title-wrap { text-align: center; margin-bottom: 20px; }
+  .subtitle { font-size: 13px; color: #666; margin-top: 4px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+
+  thead th {
+    background: #b8e6f0; color: #1a3c5e; font-weight: 700;
+    border: 1.5px solid #8ecfdf; padding: 6px 2px;
+    text-align: center; vertical-align: middle;
+  }
+  thead th.title-header { background: #8ecfdf; font-size: 13px; }
+  thead th.month-header { font-size: 13px; font-weight: 800; }
+  thead th.sprint-header { font-size: 11px; font-weight: 600; width: 70px; min-width: 70px; }
+  thead th.num-header { width: 32px; min-width: 32px; font-size: 12px; }
+  thead th.act-header { width: 250px; min-width: 250px; font-size: 13px; }
+
+  tbody td {
+    border: 1px solid #cde6ec; padding: 0; height: 40px;
+    vertical-align: middle; text-align: center;
+  }
+  tbody td.num {
+    font-size: 12px; font-weight: 700; color: #1a3c5e;
+    background: #f0f8fb; border-right: 1px solid #8ecfdf;
+  }
+  tbody td.activity {
+    text-align: left; padding: 6px 10px; font-size: 11.5px;
+    font-weight: 600; color: #1a3c5e; background: #f5fbfd;
+    line-height: 1.35; border-right: 2px solid #8ecfdf;
+  }
+
+  /* Phase colors — same color family per phase */
+  .bar-p1a { background: #00BCD4; }
+  .bar-p1b { background: #0097A7; }
+  .bar-p1c { background: #00838F; }
+  .bar-p1d { background: #006064; }
+  .bar-p2a { background: #FF9800; }
+  .bar-p2b { background: #F57C00; }
+  .bar-p2c { background: #EF6C00; }
+  .bar-p3a { background: #9C27B0; }
+  .bar-p3b { background: #7B1FA2; }
+  .bar-p3c { background: #6A1B9A; }
+  .bar-p3d { background: #4A148C; }
+  .bar-p3e { background: #E91E63; }
+  .bar-p4a { background: #4CAF50; }
+  .bar-p4b { background: #388E3C; }
+  .bar-p4c { background: #2E7D32; }
+
+  .legend {
+    margin-top: 18px; display: flex; gap: 18px;
+    justify-content: center; flex-wrap: wrap; font-size: 12px; color: #444;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-box { width: 18px; height: 12px; border-radius: 2px; display: inline-block; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="title-wrap">
+    <h1>DIAGRAMME DE GANTT</h1>
+    <div class="subtitle">Stage PFE — DPR Analytics Hub — ETAP — Février à Mai 2026</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="num-header" rowspan="3">N°</th>
+        <th class="act-header" rowspan="3">FONCTIONNALITÉ</th>
+        <th class="title-header" colspan="8">SPRINTS</th>
+      </tr>
+      <tr>
+        <th class="month-header" colspan="2">FÉVRIER</th>
+        <th class="month-header" colspan="2">MARS</th>
+        <th class="month-header" colspan="2">AVRIL</th>
+        <th class="month-header" colspan="2">MAI</th>
+      </tr>
+      <tr>
+        <th class="sprint-header">Sprint 1</th>
+        <th class="sprint-header">Sprint 2</th>
+        <th class="sprint-header">Sprint 3</th>
+        <th class="sprint-header">Sprint 4</th>
+        <th class="sprint-header">Sprint 5</th>
+        <th class="sprint-header">Sprint 6</th>
+        <th class="sprint-header">Sprint 7</th>
+        <th class="sprint-header">Sprint 8</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <!-- ══ 1. Authentification → S1 ══ -->
+      <tr>
+        <td class="num">1</td>
+        <td class="activity">Authentification</td>
+        <td class="bar-p1a"></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+
+      <!-- ══ 2. Configuration générale → S1-S2 ══ -->
+      <tr>
+        <td class="num">2</td>
+        <td class="activity">Gérer la configuration générale</td>
+        <td class="bar-p1b"></td>
+        <td class="bar-p1b"></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+
+      <!-- ══ 3. Concessions → S2 ══ -->
+      <tr>
+        <td class="num">3</td>
+        <td class="activity">Gérer les concessions</td>
+        <td></td>
+        <td class="bar-p1c"></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+
+      <!-- ══ 4. Mappings cellulaires → S2-S3 ══ -->
+      <tr>
+        <td class="num">4</td>
+        <td class="activity">Gérer les mappings cellulaires</td>
+        <td></td>
+        <td class="bar-p1d"></td>
+        <td class="bar-p1d"></td>
+        <td></td><td></td><td></td><td></td><td></td>
+      </tr>
+
+      <!-- ══ 5. Fichiers DPR → S3 ══ -->
+      <tr>
+        <td class="num">5</td>
+        <td class="activity">Gérer les fichiers DPR</td>
+        <td></td><td></td>
+        <td class="bar-p2a"></td>
+        <td></td><td></td><td></td><td></td><td></td>
+      </tr>
+
+      <!-- ══ 6. Extraction → S3-S4 ══ -->
+      <tr>
+        <td class="num">6</td>
+        <td class="activity">Extraire les données de production</td>
+        <td></td><td></td>
+        <td class="bar-p2b"></td>
+        <td class="bar-p2b"></td>
+        <td></td><td></td><td></td><td></td>
+      </tr>
+
+      <!-- ══ 7. Correction → S4-S5 ══ -->
+      <tr>
+        <td class="num">7</td>
+        <td class="activity">Corriger et valider les données</td>
+        <td></td><td></td><td></td>
+        <td class="bar-p2c"></td>
+        <td class="bar-p2c"></td>
+        <td></td><td></td><td></td>
+      </tr>
+
+      <!-- ══ 8. Résultats → S5-S6 ══ -->
+      <tr>
+        <td class="num">8</td>
+        <td class="activity">Consulter et modifier les résultats</td>
+        <td></td><td></td><td></td><td></td>
+        <td class="bar-p3a"></td>
+        <td class="bar-p3a"></td>
+        <td></td><td></td>
+      </tr>
+
+      <!-- ══ 9. Export → S6 ══ -->
+      <tr>
+        <td class="num">9</td>
+        <td class="activity">Exporter les données</td>
+        <td></td><td></td><td></td><td></td><td></td>
+        <td class="bar-p3b"></td>
+        <td></td><td></td>
+      </tr>
+
+      <!-- ══ 10. Dashboard → S6-S7 ══ -->
+      <tr>
+        <td class="num">10</td>
+        <td class="activity">Tableau de bord</td>
+        <td></td><td></td><td></td><td></td><td></td>
+        <td class="bar-p3c"></td>
+        <td class="bar-p3c"></td>
+        <td></td>
+      </tr>
+
+      <!-- ══ 11. Logs → S7 ══ -->
+      <tr>
+        <td class="num">11</td>
+        <td class="activity">Suivi des logs</td>
+        <td></td><td></td><td></td><td></td><td></td><td></td>
+        <td class="bar-p4a"></td>
+        <td></td>
+      </tr>
+
+      <!-- ══ 12. i18n → S8 ══ -->
+      <tr>
+        <td class="num">12</td>
+        <td class="activity">Internationalisation</td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        <td class="bar-p4b"></td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-box" style="background:#00BCD4"></div> Sprint 1–2 (Fondation)</div>
+    <div class="legend-item"><div class="legend-box" style="background:#FF9800"></div> Sprint 3–4 (Moteur ETL)</div>
+    <div class="legend-item"><div class="legend-box" style="background:#9C27B0"></div> Sprint 5–6 (Interface Web)</div>
+    <div class="legend-item"><div class="legend-box" style="background:#4CAF50"></div> Sprint 7–8 (Finalisation)</div>
+  </div>
+
+</div>
+</body>
+</html>

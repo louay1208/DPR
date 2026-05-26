@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Diagramme de Classes UML — DPR Manager</title>
+<style>
+  @page { size: A3 landscape; margin: 10mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #eee; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px; }
+  .page { background: white; box-shadow: 0 4px 24px rgba(0,0,0,0.12); display: flex; justify-content: center; align-items: center; width: min(95vw, 1500px); aspect-ratio: 1.414; }
+  svg { width: 100%; height: 100%; }
+  @media print { body { background: white; } .page { box-shadow: none; width: 100%; } }
+</style>
+</head>
+<body>
+<div class="page">
+<svg viewBox="0 0 1500 1060" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+
+  <defs>
+    <!-- Solid arrowhead (for dependency) -->
+    <marker id="dep" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <path d="M0,0 L10,3.5 L0,7" fill="none" stroke="#555" stroke-width="1.5"/>
+    </marker>
+    <!-- Filled diamond (composition) -->
+    <marker id="comp" markerWidth="14" markerHeight="10" refX="1" refY="5" orient="auto">
+      <path d="M7,0 L14,5 L7,10 L0,5 Z" fill="#333"/>
+    </marker>
+    <!-- Hollow triangle (inheritance) -->
+    <marker id="inh" markerWidth="16" markerHeight="12" refX="15" refY="6" orient="auto">
+      <path d="M0,0 L16,6 L0,12 Z" fill="white" stroke="#333" stroke-width="1.5"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="750" y="38" text-anchor="middle" font-size="26" font-weight="800" fill="#1a1a1a">Diagramme de Classes UML — DPR Manager</text>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ROW 1: Services (y=60) -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+
+  <!-- ParserService (x=30, y=60) -->
+  <rect x="30" y="60" width="280" height="100" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="30" y="60" width="280" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="170" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="white">ParserService</text>
+  <line x1="30" y1="116" x2="310" y2="116" stroke="#333" stroke-width="0.8"/>
+  <text x="40" y="103" font-size="11" fill="#333">- logger: LogService</text>
+  <text x="40" y="140" font-size="11" fill="#333">+ extract(report_type, folder, date): dict</text>
+
+  <!-- CorrectorService (x=370, y=60) -->
+  <rect x="370" y="60" width="280" height="100" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="370" y="60" width="280" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="510" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="white">CorrectorService</text>
+  <line x1="370" y1="116" x2="650" y2="116" stroke="#333" stroke-width="0.8"/>
+  <text x="380" y="103" font-size="11" fill="#333">- logger: LogService</text>
+  <text x="380" y="140" font-size="11" fill="#333">+ auto_correct(data: list): dict</text>
+
+  <!-- ExporterService (x=710, y=60) -->
+  <rect x="710" y="60" width="280" height="100" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="710" y="60" width="280" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="850" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="white">ExporterService</text>
+  <line x1="710" y1="116" x2="990" y2="116" stroke="#333" stroke-width="0.8"/>
+  <text x="720" y="103" font-size="11" fill="#333">- logger: LogService</text>
+  <text x="720" y="140" font-size="11" fill="#333">+ export_csv(data, type, folder): Path</text>
+
+  <!-- LogService (x=1100, y=60) -->
+  <rect x="1100" y="60" width="280" height="140" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="1100" y="60" width="280" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="1240" y="56" text-anchor="middle" font-size="10" fill="#888" font-style="italic">&#171;singleton&#187;</text>
+  <text x="1240" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="white">LogService</text>
+  <text x="1110" y="103" font-size="11" fill="#333">- _instance: LogService</text>
+  <text x="1110" y="118" font-size="11" fill="#333">- _clients: list[WebSocket]</text>
+  <line x1="1100" y1="126" x2="1380" y2="126" stroke="#333" stroke-width="0.8"/>
+  <text x="1110" y="145" font-size="11" fill="#333">+ get(): LogService</text>
+  <text x="1110" y="160" font-size="11" fill="#333">+ connect(ws): void</text>
+  <text x="1110" y="175" font-size="11" fill="#333">+ log(msg, level, source): void</text>
+  <text x="1110" y="190" font-size="11" fill="#333">+ info(msg, source): void</text>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ROW 2: Core Models (y=280) -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+
+  <!-- ExtractionRequest (x=30, y=280) -->
+  <rect x="30" y="280" width="260" height="160" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="30" y="280" width="260" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="160" y="300" text-anchor="middle" font-size="13" font-weight="700" fill="white">ExtractionRequest</text>
+  <text x="40" y="323" font-size="11" fill="#333">+ report_type: ReportType</text>
+  <text x="40" y="338" font-size="11" fill="#333">+ date_dpr: date</text>
+  <text x="40" y="353" font-size="11" fill="#333">+ dpr_source: str</text>
+  <text x="40" y="368" font-size="11" fill="#333">+ num_days: int</text>
+  <text x="40" y="383" font-size="11" fill="#333">+ concession_ids: list[str]</text>
+  <text x="40" y="398" font-size="11" fill="#333">+ concatenate: bool</text>
+
+  <!-- ExtractionResult (x=370, y=250) — CENTRAL CLASS -->
+  <rect x="370" y="250" width="280" height="220" rx="3" fill="white" stroke="#333" stroke-width="2"/>
+  <rect x="370" y="250" width="280" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="510" y="270" text-anchor="middle" font-size="13" font-weight="700" fill="white">ExtractionResult</text>
+  <text x="380" y="293" font-size="11" fill="#333">+ id: str</text>
+  <text x="380" y="308" font-size="11" fill="#333">+ report_type: ReportType</text>
+  <text x="380" y="323" font-size="11" fill="#333">+ status: ProcessingStatus</text>
+  <text x="380" y="338" font-size="11" fill="#333">+ record_count: int</text>
+  <text x="380" y="353" font-size="11" fill="#333">+ data: list[dict]</text>
+  <text x="380" y="368" font-size="11" fill="#333">+ dc_data: list[dict]</text>
+  <text x="380" y="383" font-size="11" fill="#333">+ dw_data: list[dict]</text>
+  <text x="380" y="398" font-size="11" fill="#333">+ corrections: list[CorrectionResult]</text>
+  <text x="380" y="413" font-size="11" fill="#333">+ errors: list[str]</text>
+  <text x="380" y="428" font-size="11" fill="#333">+ created_at: datetime</text>
+
+  <!-- CorrectionResult (x=370, y=530) -->
+  <rect x="370" y="530" width="280" height="130" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="370" y="530" width="280" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="510" y="550" text-anchor="middle" font-size="13" font-weight="700" fill="white">CorrectionResult</text>
+  <text x="380" y="573" font-size="11" fill="#333">+ field: str</text>
+  <text x="380" y="588" font-size="11" fill="#333">+ row: int</text>
+  <text x="380" y="603" font-size="11" fill="#333">+ original_value: Any</text>
+  <text x="380" y="618" font-size="11" fill="#333">+ corrected_value: Any</text>
+  <text x="380" y="633" font-size="11" fill="#333">+ reason: str</text>
+
+  <!-- UserRegister (x=30, y=530) -->
+  <rect x="30" y="530" width="250" height="130" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="30" y="530" width="250" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="155" y="550" text-anchor="middle" font-size="13" font-weight="700" fill="white">UserRegister</text>
+  <text x="40" y="573" font-size="11" fill="#333">+ full_name: str</text>
+  <text x="40" y="588" font-size="11" fill="#333">+ email: str</text>
+  <text x="40" y="603" font-size="11" fill="#333">+ company: str</text>
+  <text x="40" y="618" font-size="11" fill="#333">+ role: str</text>
+  <text x="40" y="633" font-size="11" fill="#333">+ password: str</text>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ROW 2 RIGHT: Concession classes -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+
+  <!-- ConcessionDetail (x=770, y=260) -->
+  <rect x="770" y="260" width="260" height="70" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="770" y="260" width="260" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="900" y="280" text-anchor="middle" font-size="13" font-weight="700" fill="white">ConcessionDetail</text>
+  <text x="780" y="303" font-size="11" fill="#333">+ mappings: ConcessionMappings</text>
+
+  <!-- ConcessionRead (x=770, y=400) -->
+  <rect x="770" y="400" width="260" height="150" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="770" y="400" width="260" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="900" y="420" text-anchor="middle" font-size="13" font-weight="700" fill="white">ConcessionRead</text>
+  <text x="780" y="443" font-size="11" fill="#333">+ id: str</text>
+  <text x="780" y="458" font-size="11" fill="#333">+ name: str</text>
+  <text x="780" y="473" font-size="11" fill="#333">+ dpr_file_alias: str</text>
+  <text x="780" y="488" font-size="11" fill="#333">+ active_daily: bool</text>
+  <text x="780" y="503" font-size="11" fill="#333">+ active_monthly: bool</text>
+  <text x="780" y="518" font-size="11" fill="#333">+ dc_count: int</text>
+  <text x="780" y="533" font-size="11" fill="#333">+ dw_count: int</text>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ROW 2 FAR RIGHT: Mapping classes -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+
+  <!-- WellMapping (x=1130, y=280) -->
+  <rect x="1130" y="280" width="250" height="115" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="1130" y="280" width="250" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="1255" y="300" text-anchor="middle" font-size="13" font-weight="700" fill="white">WellMapping</text>
+  <text x="1140" y="323" font-size="11" fill="#333">+ well_name: str</text>
+  <text x="1140" y="338" font-size="11" fill="#333">+ ubhi: str</text>
+  <text x="1140" y="353" font-size="11" fill="#333">+ completion: str</text>
+  <text x="1140" y="368" font-size="11" fill="#333">+ fields: list[CellMapping]</text>
+
+  <!-- CellMapping (x=1130, y=460) -->
+  <rect x="1130" y="460" width="250" height="115" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="1130" y="460" width="250" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="1255" y="480" text-anchor="middle" font-size="13" font-weight="700" fill="white">CellMapping</text>
+  <text x="1140" y="503" font-size="11" fill="#333">+ attribute_code: str</text>
+  <text x="1140" y="518" font-size="11" fill="#333">+ attribute: str</text>
+  <text x="1140" y="533" font-size="11" fill="#333">+ cell_ref: str</text>
+  <text x="1140" y="548" font-size="11" fill="#333">+ unit: str</text>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ROW 3: Enums (y=750) -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+
+  <!-- ReportType enum (x=30, y=750) -->
+  <rect x="30" y="750" width="220" height="120" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="30" y="750" width="220" height="28" rx="3" fill="#2e5f3a"/>
+  <text x="140" y="746" text-anchor="middle" font-size="10" fill="#888" font-style="italic">&#171;enumeration&#187;</text>
+  <text x="140" y="770" text-anchor="middle" font-size="13" font-weight="700" fill="white">ReportType</text>
+  <text x="40" y="798" font-size="11" fill="#333">DAILY</text>
+  <text x="40" y="813" font-size="11" fill="#333">MONTHLY</text>
+  <text x="40" y="828" font-size="11" fill="#333">DC</text>
+  <text x="40" y="843" font-size="11" fill="#333">DW</text>
+  <text x="40" y="858" font-size="11" fill="#333">WELL_TEST</text>
+
+  <!-- ProcessingStatus enum (x=310, y=750) -->
+  <rect x="310" y="750" width="220" height="135" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="310" y="750" width="220" height="28" rx="3" fill="#2e5f3a"/>
+  <text x="420" y="746" text-anchor="middle" font-size="10" fill="#888" font-style="italic">&#171;enumeration&#187;</text>
+  <text x="420" y="770" text-anchor="middle" font-size="13" font-weight="700" fill="white">ProcessingStatus</text>
+  <text x="320" y="798" font-size="11" fill="#333">PENDING</text>
+  <text x="320" y="813" font-size="11" fill="#333">EXTRACTING</text>
+  <text x="320" y="828" font-size="11" fill="#333">CORRECTING</text>
+  <text x="320" y="843" font-size="11" fill="#333">EXPORTING</text>
+  <text x="320" y="858" font-size="11" fill="#333">COMPLETED</text>
+  <text x="320" y="873" font-size="11" fill="#333">ERROR</text>
+
+  <!-- FileInfo (x=600, y=750) -->
+  <rect x="600" y="750" width="260" height="160" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="600" y="750" width="260" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="730" y="770" text-anchor="middle" font-size="13" font-weight="700" fill="white">FileInfo</text>
+  <text x="610" y="798" font-size="11" fill="#333">+ id: str</text>
+  <text x="610" y="813" font-size="11" fill="#333">+ filename: str</text>
+  <text x="610" y="828" font-size="11" fill="#333">+ original_name: str</text>
+  <text x="610" y="843" font-size="11" fill="#333">+ size: int</text>
+  <text x="610" y="858" font-size="11" fill="#333">+ uploaded_at: datetime</text>
+  <text x="610" y="873" font-size="11" fill="#333">+ report_type: ReportType</text>
+  <text x="610" y="888" font-size="11" fill="#333">+ status: ProcessingStatus</text>
+
+  <!-- LogEntry (x=940, y=750) -->
+  <rect x="940" y="750" width="240" height="115" rx="3" fill="white" stroke="#333" stroke-width="1.5"/>
+  <rect x="940" y="750" width="240" height="28" rx="3" fill="#1e3a5f"/>
+  <text x="1060" y="770" text-anchor="middle" font-size="13" font-weight="700" fill="white">LogEntry</text>
+  <text x="950" y="798" font-size="11" fill="#333">+ timestamp: datetime</text>
+  <text x="950" y="813" font-size="11" fill="#333">+ level: str</text>
+  <text x="950" y="828" font-size="11" fill="#333">+ source: str</text>
+  <text x="950" y="843" font-size="11" fill="#333">+ message: str</text>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- RELATIONSHIPS -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+
+  <!-- === DEPENDENCY (dashed): Services → LogService === -->
+  <!-- ParserService → LogService -->
+  <line x1="310" y1="90" x2="1100" y2="90" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4" marker-end="url(#dep)"/>
+  <text x="700" y="84" text-anchor="middle" font-size="9" fill="#888" font-style="italic">&#171;use&#187;</text>
+
+  <!-- CorrectorService → LogService -->
+  <line x1="650" y1="110" x2="1100" y2="110" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4" marker-end="url(#dep)"/>
+
+  <!-- ExporterService → LogService -->
+  <line x1="990" y1="130" x2="1100" y2="130" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4" marker-end="url(#dep)"/>
+
+  <!-- === DEPENDENCY (dashed): ParserService → ExtractionResult === -->
+  <!-- Goes down from Parser bottom to ExtractionResult top -->
+  <line x1="170" y1="160" x2="170" y2="230" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <line x1="170" y1="230" x2="440" y2="230" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <line x1="440" y1="230" x2="440" y2="250" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4" marker-end="url(#dep)"/>
+  <text x="300" y="224" text-anchor="middle" font-size="9" fill="#888" font-style="italic">&#171;create&#187;</text>
+
+  <!-- === DEPENDENCY (dashed): CorrectorService → ExtractionResult === -->
+  <line x1="510" y1="160" x2="510" y2="250" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4" marker-end="url(#dep)"/>
+  <text x="524" y="210" font-size="9" fill="#888" font-style="italic">&#171;use&#187;</text>
+
+  <!-- === DEPENDENCY (dashed): ExporterService → ExtractionResult === -->
+  <line x1="850" y1="160" x2="850" y2="230" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <line x1="850" y1="230" x2="660" y2="230" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <line x1="660" y1="230" x2="660" y2="250" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4" marker-end="url(#dep)"/>
+  <text x="760" y="224" text-anchor="middle" font-size="9" fill="#888" font-style="italic">&#171;use&#187;</text>
+
+  <!-- === COMPOSITION: ExtractionResult ◆── CorrectionResult === -->
+  <line x1="510" y1="470" x2="510" y2="530" stroke="#333" stroke-width="1.5" marker-start="url(#comp)"/>
+  <text x="520" y="488" font-size="10" fill="#333">1</text>
+  <text x="520" y="524" font-size="10" fill="#333">*</text>
+
+  <!-- === INHERITANCE: ConcessionDetail ──▷ ConcessionRead === -->
+  <line x1="900" y1="330" x2="900" y2="400" stroke="#333" stroke-width="1.5" marker-end="url(#inh)"/>
+
+  <!-- === COMPOSITION: WellMapping ◆── CellMapping === -->
+  <line x1="1255" y1="395" x2="1255" y2="460" stroke="#333" stroke-width="1.5" marker-start="url(#comp)"/>
+  <text x="1265" y="413" font-size="10" fill="#333">1</text>
+  <text x="1265" y="454" font-size="10" fill="#333">1..*</text>
+
+  <!-- === ASSOCIATION: ConcessionRead 1──* CellMapping === -->
+  <line x1="1030" y1="500" x2="1130" y2="500" stroke="#333" stroke-width="1.5"/>
+  <text x="1040" y="494" font-size="10" fill="#333">1</text>
+  <text x="1115" y="494" font-size="10" fill="#333">*</text>
+
+  <!-- === DEPENDENCY: ParserService → CellMapping === -->
+  <line x1="310" y1="150" x2="340" y2="150" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <line x1="340" y1="150" x2="340" y2="210" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <line x1="340" y1="210" x2="1110" y2="210" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <line x1="1110" y1="210" x2="1110" y2="490" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4"/>
+  <line x1="1110" y1="490" x2="1130" y2="490" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4" marker-end="url(#dep)"/>
+  <text x="730" y="204" text-anchor="middle" font-size="9" fill="#888" font-style="italic">&#171;use&#187;</text>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- LEGEND -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <rect x="940" y="630" width="440" height="100" rx="6" fill="#f9f9f9" stroke="#ddd" stroke-width="1"/>
+  <text x="1160" y="652" text-anchor="middle" font-size="12" font-weight="700" fill="#333">Légende UML</text>
+
+  <!-- Inheritance -->
+  <line x1="960" y1="672" x2="1020" y2="672" stroke="#333" stroke-width="1.5" marker-end="url(#inh)"/>
+  <text x="1030" y="676" font-size="10" fill="#555">Héritage (Généralisation)</text>
+
+  <!-- Composition -->
+  <line x1="960" y1="694" x2="1020" y2="694" stroke="#333" stroke-width="1.5" marker-start="url(#comp)"/>
+  <text x="1030" y="698" font-size="10" fill="#555">Composition (cycle de vie lié)</text>
+
+  <!-- Association -->
+  <line x1="960" y1="716" x2="1020" y2="716" stroke="#333" stroke-width="1.5"/>
+  <text x="1030" y="720" font-size="10" fill="#555">Association (avec multiplicité 1, *)</text>
+
+  <!-- Dependency -->
+  <line x1="960" y1="694" x2="960" y2="694" stroke="none"/>
+  <line x1="1210" y1="672" x2="1270" y2="672" stroke="#555" stroke-width="1.2" stroke-dasharray="6,4" marker-end="url(#dep)"/>
+  <text x="1280" y="676" font-size="10" fill="#555">Dépendance</text>
+
+</svg>
+</div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — DPR Manager</title>
+    <link rel="icon" type="image/png" href="/img/etap-logo.png">
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+    <div class="auth-page">
+        <!-- Left Side: Branding -->
+        <div class="auth-left">
+            <div class="auth-brand">
+                <img src="/img/etap-logo.png" alt="ETAP Logo">
+                <div class="auth-brand-text">
+                    <div class="title" data-i18n="sidebar.title">DPR Manager</div>
+                    <div class="subtitle" data-i18n="sidebar.subtitle">Production Data Analytics</div>
+                </div>
+            </div>
+            
+            <div class="auth-illustration">
+                <h2><span data-i18n="auth.illus.title1">Industrial Production</span><br><span data-i18n="auth.illus.title2">Analytics Hub</span></h2>
+                <ul class="auth-features">
+                    <li><div class="icon">✓</div> <span data-i18n="auth.illus.f1">Automated Daily Reporting</span></li>
+                    <li><div class="icon">✓</div> <span data-i18n="auth.illus.f2">Secure Concession Management</span></li>
+                    <li><div class="icon">✓</div> <span data-i18n="auth.illus.f3">Real-time Extraction Engine</span></li>
+                </ul>
+            </div>
+            
+            <div style="z-index: 1; font-size: 0.85rem; color: var(--text-muted);">
+                &copy; 2026 ETAP. All rights reserved.
+            </div>
+        </div>
+        
+        <!-- Right Side: Form -->
+        <div class="auth-right">
+            <div style="position: absolute; top: 20px; right: 20px;">
+                <button class="btn btn-outline btn-sm lang-toggle" id="lang-toggle" onclick="I18n.toggle()">FR</button>
+            </div>
+            <div class="auth-form-container">
+                <div class="auth-header">
+                    <h1 data-i18n="auth.login.title">Welcome back</h1>
+                    <p data-i18n="auth.login.subtitle">Sign in to your account to continue</p>
+                </div>
+                
+                <div id="auth-error" class="auth-error"></div>
+                
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label class="form-label" for="email" data-i18n="auth.login.email">Email Address</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">✉</span>
+                            <input type="email" id="email" class="form-input" placeholder="name@company.com" required data-i18n="auth.login.email">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="password" data-i18n="auth.login.password">Password</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="password" class="form-input" placeholder="••••••••" required data-i18n="auth.login.password">
+                            <button type="button" class="password-toggle" onclick="Auth.togglePassword('password')" title="Toggle visibility">👁</button>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-options">
+                        <label class="form-check" style="display:flex;align-items:center;gap:8px;font-size:0.9rem;color:var(--text-secondary)">
+                            <input type="checkbox" id="remember"> <span data-i18n="auth.login.remember">Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-password" data-i18n="auth.login.forgot">Forgot password?</a>
+                    </div>
+                    
+                    <button type="submit" class="auth-btn" data-i18n="auth.login.btn">Sign In</button>
+                </form>
+                
+                <div class="auth-footer">
+                    <span data-i18n="auth.login.footer1">Don't have an account?</span> <a href="/register.html" data-i18n="auth.login.footer2">Sign up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/i18n.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            I18n.apply();
+        });
+    </script>
+</body>
+</html>

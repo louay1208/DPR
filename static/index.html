@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DPR - Daily Production Report extraction and processing tool for ETAP">
+    <title>DPR — Production Data Manager</title>
+    <link rel="icon" type="image/png" href="/img/etap-logo.png">
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+<div class="app">
+
+    <!-- ── Sidebar (dark) ───────────────────────────────────────── -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="/img/etap-logo.png" alt="ETAP" class="sidebar-logo-img">
+            <div>
+                <div class="sidebar-title" data-i18n="sidebar.title">DPR Manager</div>
+                <div class="sidebar-subtitle" data-i18n="sidebar.subtitle">ETAP Production Data</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title" data-i18n="section.overview">Overview</div>
+                <div class="nav-item active" data-page="dashboard">
+                    <span class="nav-icon">📊</span> <span data-i18n="nav.dashboard">Dashboard</span>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title" data-i18n="section.workflow">Workflow</div>
+                <div class="nav-item" data-page="extract">
+                    <span class="nav-icon">⚙️</span> <span data-i18n="nav.extract">Extract & Process</span>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Configuration</div>
+                <div class="nav-item" data-page="concessions">
+                    <span class="nav-icon">◈</span> <span>Concessions</span>
+                </div>
+                <div class="nav-item" data-page="uom-config">
+                    <span class="nav-icon">⇌</span> <span>Unit Conversions</span>
+                </div>
+                <div class="nav-item" data-page="import-config">
+                    <span class="nav-icon">↓</span> <span>Import</span>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title" data-i18n="section.results">Results</div>
+                <div class="nav-item" data-page="output-dc">
+                    <span class="nav-icon">📋</span> <span data-i18n="nav.dc">Daily Concession</span>
+                    <span class="nav-badge" id="badge-dc" style="display:none">0</span>
+                </div>
+                <div class="nav-item" data-page="output-dw">
+                    <span class="nav-icon">📋</span> <span data-i18n="nav.dw">Daily Well</span>
+                    <span class="nav-badge" id="badge-dw" style="display:none">0</span>
+                </div>
+                <div class="nav-item" data-page="output-mc">
+                    <span class="nav-icon">📋</span> <span data-i18n="nav.mc">Monthly</span>
+                    <span class="nav-badge" id="badge-mc" style="display:none">0</span>
+                </div>
+                <div class="nav-item" data-page="well-test">
+                    <span class="nav-icon">🔬</span> <span data-i18n="nav.wt">Well Test</span>
+                    <span class="nav-badge" id="badge-wt" style="display:none">0</span>
+                </div>
+
+            </div>
+            <div class="nav-section admin-only" style="display:none">
+                <div class="nav-section-title" data-i18n="section.admin">Administration</div>
+                <div class="nav-item" data-page="users">
+                    <span class="nav-icon">👤</span> <span data-i18n="nav.users">User Management</span>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-item" data-page="logs">
+                    <span class="nav-icon">📜</span> <span data-i18n="nav.logs">Logs</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-status">
+                <div class="status-dot" id="status-dot"></div>
+                <span id="sidebar-status-text" data-i18n="sidebar.status.connecting">Connecting...</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ── Main ─────────────────────────────────────────────────── -->
+    <div class="main">
+        <header class="main-header">
+            <h1 class="page-title" id="page-title" data-i18n="page.dashboard">Dashboard</h1>
+            <div class="header-actions">
+                <span id="user-greeting" style="font-size: 0.85rem; color: var(--text-muted); margin-right: 8px;"></span>
+                <button class="btn btn-outline btn-sm lang-toggle" id="lang-toggle" onclick="I18n.toggle()">FR</button>
+                <button class="btn btn-outline btn-sm" onclick="App.refreshDashboard()" data-i18n="btn.refresh">↻ Refresh</button>
+                <button class="btn btn-outline btn-sm" onclick="Auth.logout()" style="color: var(--danger); border-color: rgba(192, 57, 43, 0.3);" data-i18n="auth.logout">⎋ Logout</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+
+            <!-- ═══════════════════════════════════════════════════
+                 DASHBOARD
+                 ═══════════════════════════════════════════════════ -->
+            <div class="section active" id="section-dashboard">
+
+                <!-- Filter Bar -->
+                <div class="card dash-filter-bar">
+                    <div class="dash-filter-row">
+                        <div class="dash-filter-group">
+                            <label class="dash-filter-label" data-i18n="dash.filter_extraction">Extraction</label>
+                            <select class="dash-filter-select" id="dash-extraction-select">
+                                <option value="">No extractions yet</option>
+                            </select>
+                        </div>
+                        <div class="dash-filter-group">
+                            <label class="dash-filter-label" data-i18n="dash.filter_concession">Concession</label>
+                            <select class="dash-filter-select" id="dash-concession-select">
+                                <option value="">All Concessions</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 1: Production KPI Cards -->
+                <div class="dash-kpi-row">
+                    <div class="card dash-kpi-card kpi-gas">
+                        <div class="kpi-accent"></div>
+                        <div class="kpi-body">
+                            <div class="kpi-label" data-i18n="dash.gas_prod">Gas Production</div>
+                            <div class="kpi-value" id="kpi-gas">0</div>
+                            <div class="kpi-unit">k Sm3</div>
+                        </div>
+                    </div>
+                    <div class="card dash-kpi-card kpi-oil">
+                        <div class="kpi-accent"></div>
+                        <div class="kpi-body">
+                            <div class="kpi-label" data-i18n="dash.oil_prod">Oil Production</div>
+                            <div class="kpi-value" id="kpi-oil">0</div>
+                            <div class="kpi-unit">m3</div>
+                        </div>
+                    </div>
+                    <div class="card dash-kpi-card kpi-water">
+                        <div class="kpi-accent"></div>
+                        <div class="kpi-body">
+                            <div class="kpi-label" data-i18n="dash.water_prod">Water Production</div>
+                            <div class="kpi-value" id="kpi-water">0</div>
+                            <div class="kpi-unit">m3</div>
+                        </div>
+                    </div>
+                    <div class="card dash-kpi-card kpi-condensate">
+                        <div class="kpi-accent"></div>
+                        <div class="kpi-body">
+                            <div class="kpi-label" data-i18n="dash.condensate">Condensate</div>
+                            <div class="kpi-value" id="kpi-condensate">0</div>
+                            <div class="kpi-unit">m3</div>
+                        </div>
+                    </div>
+                    <div class="card dash-kpi-card kpi-records">
+                        <div class="kpi-accent"></div>
+                        <div class="kpi-body">
+                            <div class="kpi-label" data-i18n="dash.total_records">Total Records</div>
+                            <div class="kpi-value" id="kpi-records">0</div>
+                            <div class="kpi-unit">&nbsp;</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Charts -->
+                <div class="dash-charts-row">
+                    <div class="card dash-chart-card">
+                        <div class="card-header"><div class="card-title" data-i18n="dash.prod_by_conc">Production by Concession</div></div>
+                        <div id="chart-conc-production"></div>
+                    </div>
+                    <div class="card dash-chart-card">
+                        <div class="card-header"><div class="card-title" data-i18n="dash.gas_dist">Gas Distribution</div></div>
+                        <div id="chart-gas-distribution"></div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Liquid Products + Production Mix -->
+                <div class="dash-charts-row">
+                    <div class="card dash-chart-card">
+                        <div class="card-header"><div class="card-title" data-i18n="dash.liquid_products">Liquid Products</div></div>
+                        <div class="dash-products-grid" id="liquid-products-grid">
+                            <div class="dash-product-card">
+                                <div class="product-name">GPL</div>
+                                <div class="product-row"><span class="product-label">Prod</span><span class="product-val" id="lp-gpl-prod">0</span></div>
+                                <div class="product-row"><span class="product-label">Ship</span><span class="product-val" id="lp-gpl-ship">0</span></div>
+                            </div>
+                            <div class="dash-product-card">
+                                <div class="product-name">Butane</div>
+                                <div class="product-row"><span class="product-label">Prod</span><span class="product-val" id="lp-butane-prod">0</span></div>
+                                <div class="product-row"><span class="product-label">Ship</span><span class="product-val" id="lp-butane-ship">0</span></div>
+                            </div>
+                            <div class="dash-product-card">
+                                <div class="product-name">Propane</div>
+                                <div class="product-row"><span class="product-label">Prod</span><span class="product-val" id="lp-propane-prod">0</span></div>
+                                <div class="product-row"><span class="product-label">Ship</span><span class="product-val" id="lp-propane-ship">0</span></div>
+                            </div>
+                            <div class="dash-product-card">
+                                <div class="product-name">Pentane</div>
+                                <div class="product-row"><span class="product-label">Prod</span><span class="product-val" id="lp-pentane-prod">0</span></div>
+                                <div class="product-row"><span class="product-label">Ship</span><span class="product-val" id="lp-pentane-ship">0</span></div>
+                            </div>
+                            <div class="dash-product-card">
+                                <div class="product-name" data-i18n="dash.condensate">Condensate</div>
+                                <div class="product-row"><span class="product-label">Prod</span><span class="product-val" id="lp-condensate-prod">0</span></div>
+                                <div class="product-row"><span class="product-label">Ship</span><span class="product-val" id="lp-condensate-ship">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card dash-chart-card">
+                        <div class="card-header"><div class="card-title" data-i18n="dash.production_mix">Production Mix</div></div>
+                        <div id="chart-production-mix"></div>
+                    </div>
+                </div>
+
+                <!-- Row 4: Well Table -->
+                <div class="card dash-well-card">
+                    <div class="card-header"><div class="card-title" data-i18n="dash.top_wells">Top Wells Production Performance</div></div>
+                    <div class="dash-well-table-wrap">
+                        <table class="dash-well-table" id="well-table">
+                            <colgroup>
+                                <col style="width:20%">
+                                <col style="width:18%">
+                                <col style="width:15%">
+                                <col style="width:17%">
+                                <col style="width:15%">
+                                <col style="width:15%">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th data-i18n="dash.well_name">Well Name</th>
+                                    <th data-i18n="dash.concession">Concession</th>
+                                    <th style="text-align:right">Gas (kSm3)</th>
+                                    <th style="text-align:right">Oil (m3)</th>
+                                    <th style="text-align:right">Water (m3)</th>
+                                    <th style="text-align:right" data-i18n="dash.water_cut">Water Cut %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="well-table-body">
+                                <tr><td colspan="6" class="empty-row" data-i18n="dash.no_well_data">No well data available</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ═══════════════════════════════════════════════════
+                 EXTRACT & PROCESS
+                 ═══════════════════════════════════════════════════ -->
+            <div class="section" id="section-extract">
+
+                <!-- Pipeline Stepper — elevated glassmorphic card -->
+                <div class="card extract-pipeline-card" style="margin-bottom:16px;padding:20px 28px">
+                    <div class="pipeline" id="pipeline">
+                        <div class="pipeline-step" id="step-config"><div class="pipeline-dot">1</div><span class="pipeline-label" data-i18n="pipe.configure">Configure</span></div>
+                        <div class="pipeline-step" id="step-extract"><div class="pipeline-dot">2</div><span class="pipeline-label" data-i18n="pipe.extract">Extract</span></div>
+                        <div class="pipeline-step" id="step-results"><div class="pipeline-dot">3</div><span class="pipeline-label">Results</span></div>
+                    </div>
+                </div>
+
+                <!-- ─── Step 1: Concession Selection ─────────────────── -->
+                <div class="card extract-card" style="margin-bottom:16px" id="card-concessions-select">
+                    <div class="card-header">
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <span class="step-num">1</span>
+                            <div>
+                                <div class="card-title">Select Concessions</div>
+                                <div class="card-subtitle">Choose which concessions to include in the extraction</div>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:10px;align-items:center">
+                            <div class="extract-search-wrap">
+                                <span class="extract-search-icon">🔍</span>
+                                <input type="text" class="form-input extract-search" id="conc-filter" placeholder="Filter concessions...">
+                            </div>
+                            <label class="form-check" style="font-size:.78rem;white-space:nowrap">
+                                <input type="checkbox" id="conc-select-all" checked onchange="App.toggleAllConcessions()">
+                                <span>Select All</span>
+                            </label>
+                            <span class="conc-counter" id="conc-selected-count">0 selected</span>
+                        </div>
+                    </div>
+                    <div class="conc-chips" id="conc-chips">
+                        <div class="conc-chips-loading">Loading concessions...</div>
+                    </div>
+                </div>
+
+                <!-- ─── Step 2: Report Type + DPR Source (3-column) ──── -->
+                <div class="card extract-card" style="margin-bottom:16px">
+                    <div class="card-header" style="margin-bottom:16px">
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <span class="step-num">2</span>
+                            <div>
+                                <div class="card-title">Report Type & DPR Source</div>
+                                <div class="card-subtitle">Configure extraction parameters</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-panels">
+                        <!-- Panel: Report Type -->
+                        <fieldset class="settings-panel">
+                            <legend data-i18n="panel.report">Report Type</legend>
+                            <div class="radio-group">
+                                <label class="form-radio"><input type="radio" name="report-type" value="daily" checked onchange="App.onReportChange()"> <span data-i18n="type.daily_short">Daily</span></label>
+                                <div class="sub-checks" id="daily-sub-checks">
+                                    <label class="form-check sub"><input type="checkbox" id="opt-dc" checked> <span>DC</span></label>
+                                    <label class="form-check sub"><input type="checkbox" id="opt-dw" checked> <span>DW</span></label>
+                                </div>
+                                <label class="form-radio"><input type="radio" name="report-type" value="monthly" onchange="App.onReportChange()"> <span data-i18n="type.monthly_short">Monthly</span></label>
+                                <label class="form-radio"><input type="radio" name="report-type" value="well_test" onchange="App.onReportChange()"> <span data-i18n="type.well_test_short">Well Test</span></label>
+                            </div>
+                        </fieldset>
+
+                        <!-- Panel: DPR Source -->
+                        <fieldset class="settings-panel" style="flex:1.5">
+                            <legend>DPR Source</legend>
+                            <div class="tab-toggle" id="dpr-source-toggle">
+                                <button class="tab-btn active" data-tab="folder" onclick="App.switchDPRSource('folder')">📁 Folder Path</button>
+                                <button class="tab-btn" data-tab="upload" onclick="App.switchDPRSource('upload')">📤 Upload File</button>
+                            </div>
+                            <!-- Folder tab content -->
+                            <div class="dpr-tab-content" id="dpr-tab-folder">
+                                <div class="form-group" style="margin-top:8px">
+                                    <input type="text" class="form-input" id="dpr-files-path" placeholder="D:\TEMP\DPR_Sept">
+                                    <div class="path-status" id="dpr-path-status"></div>
+                                </div>
+                            </div>
+                            <!-- Upload tab content -->
+                            <div class="dpr-tab-content" id="dpr-tab-upload" style="display:none">
+                                <div class="file-dropzone" id="file-dropzone" onclick="document.getElementById('file-input-hidden').click()">
+                                    <input type="file" id="file-input-hidden" accept=".xlsx,.xls,.xlsm" multiple style="display:none" onchange="App.handleFileUpload(this.files)">
+                                    <div class="dropzone-icon">📄</div>
+                                    <div class="dropzone-text">Drop .xlsx files here or click to browse</div>
+                                    <div class="dropzone-hint">Supports multiple files</div>
+                                </div>
+                                <div class="upload-list" id="upload-list"></div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Panel: Date & Options -->
+                        <fieldset class="settings-panel">
+                            <legend data-i18n="panel.date">Date & Options</legend>
+                            <div class="radio-group">
+                                <label class="form-radio"><input type="radio" name="date-mode" value="dpr" checked onchange="App.onDateModeChange()"> <span data-i18n="date.dpr">Date DPR</span></label>
+                                <label class="form-radio"><input type="radio" name="date-mode" value="selection" onchange="App.onDateModeChange()"> <span data-i18n="date.selection">Selection Date</span></label>
+                            </div>
+                            <div class="date-fields" id="date-fields-dpr">
+                                <input type="date" class="form-input" id="date-dpr">
+                            </div>
+                            <div class="date-fields" id="date-fields-selection" style="display:none">
+                                <div class="date-selectors">
+                                    <select class="form-select date-sel" id="sel-day"></select>
+                                    <select class="form-select date-sel" id="sel-month"></select>
+                                    <select class="form-select date-sel" id="sel-year"></select>
+                                </div>
+                            </div>
+                            <div style="margin-top:10px;border-top:1px solid var(--border-light);padding-top:10px">
+                                <label class="form-radio"><input type="radio" name="name-mode" value="auto" checked> <span data-i18n="name.auto">Auto detect name</span></label>
+                                <label class="form-radio"><input type="radio" name="name-mode" value="standard"> <span data-i18n="name.standard">Standard Name</span></label>
+                            </div>
+                            <div style="margin-top:8px">
+                                <label class="form-check"><input type="checkbox" id="opt-multiple" onchange="App.onMultipleChange()"> <span data-i18n="name.multiple">Multiple DPR files</span></label>
+                                <div class="multi-fields" id="multi-fields" style="display:none;margin-top:6px">
+                                    <input type="number" class="form-input" id="num-days" value="6" min="1" max="31" style="width:70px" title="Number of days">
+                                </div>
+                                <label class="form-check" style="margin-top:4px"><input type="checkbox" id="opt-concatenate" checked> <span data-i18n="opt.concatenate">Concatenate</span></label>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <!-- Extract Action Footer — prominent CTA -->
+                    <div class="extract-footer">
+                        <div class="extract-info" id="extract-info">
+                            <span>✓</span> <span id="extract-info-text">Configuration loaded from built-in database</span>
+                        </div>
+                        <div class="action-bar">
+                            <div class="form-group" style="margin:0">
+                                <label class="form-label" style="font-size:.65rem;color:var(--text-muted);margin:0">OUTPUT FOLDER</label>
+                                <input type="text" class="form-input" id="output-csv-path" placeholder="D:\TEMP\Export" style="width:220px;font-size:.78rem;padding:5px 10px">
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="App.savePaths()" data-i18n="btn.save">💾 Save Paths</button>
+                            <button class="btn btn-primary btn-lg extract-cta" id="btn-extract" onclick="App.extract()">⚡ Extract Data</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Logs + Data Preview — 2-column -->
+                <div class="section-grid" style="gap:16px">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title" data-i18n="extract.logs">📋 Live Logs</div>
+                            <span style="font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Terminal</span>
+                        </div>
+                        <div class="log-console" id="extract-logs"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><span data-i18n="extract.preview">Preview</span> <span id="preview-count" style="color:var(--text-muted);font-weight:400;font-size:.7rem"></span></div>
+                            <span style="font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Data Table</span>
+                        </div>
+                        <div class="table-wrapper" style="max-height:260px">
+                            <table class="data-table" id="preview-table">
+                                <thead id="preview-thead"></thead>
+                                <tbody id="preview-tbody">
+                                    <tr><td class="empty-row" colspan="99" data-i18n="extract.no_data">Run an extraction to preview data</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- OUTPUT DC -->
+            <div class="section" id="section-output-dc">
+                <div class="output-page" data-type="dc">
+                    <div class="output-kpi-strip">
+                        <div class="output-kpi"><div class="output-kpi-value" id="kpi-dc-rows">0</div><div class="output-kpi-label">Rows</div></div>
+                        <div class="output-kpi"><div class="output-kpi-value" id="kpi-dc-cols">0</div><div class="output-kpi-label">Columns</div></div>
+                        <div class="output-kpi"><div class="output-kpi-value" id="kpi-dc-filled">--</div><div class="output-kpi-label">Fill Rate</div></div>
+                        <div class="output-kpi accent"><div class="output-kpi-value">DC</div><div class="output-kpi-label">Daily Concession</div></div>
+                    </div>
+                    <div class="output-toolbar">
+                        <div class="output-toolbar-left">
+                            <div class="output-search-wrap"><span class="output-search-icon">&#128269;</span><input type="text" class="output-search" id="search-dc" placeholder="Search columns or values..." oninput="App.filterOutputTable('dc')"></div>
+                            <span class="output-row-info" id="dc-info">0 columns &middot; 0 rows</span>
+                        </div>
+                        <div class="output-toolbar-right">
+                            <button class="btn btn-ghost btn-sm crud-btn" id="undo-dc" onclick="App.undoRecord('dc')" disabled title="Undo">&#8630; Undo</button>
+                            <button class="btn btn-ghost btn-sm crud-btn" id="redo-dc" onclick="App.redoRecord('dc')" disabled title="Redo">&#8631; Redo</button>
+                            <span class="toolbar-sep"></span>
+                            <button class="btn btn-danger-outline btn-sm crud-btn" id="bulk-del-dc" onclick="App.bulkDeleteRecords('dc')" style="display:none">&#128465; Delete Selected</button>
+                            <button class="btn btn-outline btn-sm crud-btn" onclick="App.cleanEmptyRows('dc')" title="Remove rows where all values are empty">&#128466; Clean Empty</button>
+                            <button class="btn btn-success-outline btn-sm crud-btn" onclick="App.addRecord('dc')">&#10010; Add Row</button>
+                            <span class="toolbar-sep"></span>
+                            <button class="btn btn-outline btn-sm" onclick="App.toggleOutputCompact('dc')">&oplus; Compact</button>
+                            <button class="btn btn-primary btn-sm" onclick="App.exportType('dc')">&dArr; Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="output-table-container" id="output-container-dc">
+                        <div class="table-wrapper output-table-wrap">
+                            <table class="data-table output-data-table" id="table-dc"><thead id="thead-dc"></thead>
+                                <tbody id="tbody-dc"><tr><td class="empty-row" colspan="99">
+                                    <div class="output-empty"><div class="output-empty-icon">&#128202;</div><div class="output-empty-title">No Daily Concession Data</div><div class="output-empty-hint">Run a daily extraction to populate this table</div></div>
+                                </td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OUTPUT DW -->
+            <div class="section" id="section-output-dw">
+                <div class="output-page" data-type="dw">
+                    <div class="output-kpi-strip">
+                        <div class="output-kpi"><div class="output-kpi-value" id="kpi-dw-rows">0</div><div class="output-kpi-label">Rows</div></div>
+                        <div class="output-kpi"><div class="output-kpi-value" id="kpi-dw-cols">0</div><div class="output-kpi-label">Columns</div></div>
+                        <div class="output-kpi"><div class="output-kpi-value" id="kpi-dw-filled">--</div><div class="output-kpi-label">Fill Rate</div></div>
+                        <div class="output-kpi accent"><div class="output-kpi-value">DW</div><div class="output-kpi-label">Daily Well</div></div>
+                    </div>
+                    <div class="output-toolbar">
+                        <div class="output-toolbar-left">
+                            <div class="output-search-wrap"><span class="output-search-icon">&#128269;</span><input type="text" class="output-search" id="search-dw" placeholder="Search columns or values..." oninput="App.filterOutputTable('dw')"></div>
+                            <span class="output-row-info" id="dw-info">0 columns &middot; 0 rows</span>
+                        </div>
+                        <div class="output-toolbar-right">
+                            <button class="btn btn-ghost btn-sm crud-btn" id="undo-dw" onclick="App.undoRecord('dw')" disabled title="Undo">&#8630; Undo</button>
+                            <button class="btn btn-ghost btn-sm crud-btn" id="redo-dw" onclick="App.redoRecord('dw')" disabled title="Redo">&#8631; Redo</button>
+                            <span class="toolbar-sep"></span>
+                            <button class="btn btn-danger-outline btn-sm crud-btn" id="bulk-del-dw" onclick="App.bulkDeleteRecords('dw')" style="display:none">&#128465; Delete Selected</button>
+                            <button class="btn btn-outline btn-sm crud-btn" onclick="App.cleanEmptyRows('dw')" title="Remove rows where all values are empty">&#128466; Clean Empty</button>
+                            <button class="btn btn-success-outline btn-sm crud-btn" onclick="App.addRecord('dw')">&#10010; Add Row</button>
+                            <span class="toolbar-sep"></span>
+                            <button class="btn btn-outline btn-sm" onclick="App.toggleOutputCompact('dw')">&oplus; Compact</button>
+                            <button class="btn btn-primary btn-sm" onclick="App.exportType('dw')">&dArr; Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="output-table-container" id="output-container-dw">
+                        <div class="table-wrapper output-table-wrap">
+                            <table class="data-table output-data-table" id="table-dw"><thead id="thead-dw"></thead>
+                                <tbody id="tbody-dw"><tr><td class="empty-row" colspan="99">
+                                    <div class="output-empty"><div class="output-empty-icon">&#128738;</div><div class="output-empty-title">No Daily Well Data</div><div class="output-empty-hint">Run a daily extraction to populate this table</div></div>
+                                </td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OUTPUT MC -->
+            <div class="section" id="section-output-mc">
+                <div class="output-page" data-type="mc">
+                    <div class="output-kpi-strip">
+                        <div class="output-kpi"><div class="output-kpi-value" id="kpi-mc-rows">0</div><div class="output-kpi-label">Rows</div></div>
+                        <div class="output-kpi"><div class="output-kpi-value" id="kpi-mc-cols">0</div><div class="output-kpi-label">Columns</div></div>
+                        <div class="output-kpi"><div class="output-kpi-value" id="kpi-mc-filled">--</div><div class="output-kpi-label">Fill Rate</div></div>
+                        <div class="output-kpi accent"><div class="output-kpi-value">MC</div><div class="output-kpi-label">Monthly Concession</div></div>
+                    </div>
+                    <div class="output-toolbar">
+                        <div class="output-toolbar-left">
+                            <div class="output-search-wrap"><span class="output-search-icon">&#128269;</span><input type="text" class="output-search" id="search-mc" placeholder="Search columns or values..." oninput="App.filterOutputTable('mc')"></div>
+                            <span class="output-row-info" id="mc-info">0 columns &middot; 0 rows</span>
+                        </div>
+                        <div class="output-toolbar-right">
+                            <button class="btn btn-ghost btn-sm crud-btn" id="undo-mc" onclick="App.undoRecord('mc')" disabled title="Undo">&#8630; Undo</button>
+                            <button class="btn btn-ghost btn-sm crud-btn" id="redo-mc" onclick="App.redoRecord('mc')" disabled title="Redo">&#8631; Redo</button>
+                            <span class="toolbar-sep"></span>
+                            <button class="btn btn-danger-outline btn-sm crud-btn" id="bulk-del-mc" onclick="App.bulkDeleteRecords('mc')" style="display:none">&#128465; Delete Selected</button>
+                            <button class="btn btn-outline btn-sm crud-btn" onclick="App.cleanEmptyRows('mc')" title="Remove rows where all values are empty">&#128466; Clean Empty</button>
+                            <button class="btn btn-success-outline btn-sm crud-btn" onclick="App.addRecord('mc')">&#10010; Add Row</button>
+                            <span class="toolbar-sep"></span>
+                            <button class="btn btn-outline btn-sm" onclick="App.toggleOutputCompact('mc')">&oplus; Compact</button>
+                            <button class="btn btn-primary btn-sm" onclick="App.exportType('monthly')">&dArr; Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="output-table-container" id="output-container-mc">
+                        <div class="table-wrapper output-table-wrap">
+                            <table class="data-table output-data-table" id="table-mc"><thead id="thead-mc"></thead>
+                                <tbody id="tbody-mc"><tr><td class="empty-row" colspan="99">
+                                    <div class="output-empty"><div class="output-empty-icon">&#128197;</div><div class="output-empty-title">No Monthly Data</div><div class="output-empty-hint">Run a monthly extraction to populate this table</div></div>
+                                </td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WELL TEST -->
+            <div class="section" id="section-well-test">
+                <div class="output-page" data-type="wt">
+                    <div class="output-kpi-strip">
+                        <div class="output-kpi"><div class="output-kpi-value" id="kpi-wt-rows">0</div><div class="output-kpi-label">Rows</div></div>
+                        <div class="output-kpi"><div class="output-kpi-value" id="kpi-wt-cols">0</div><div class="output-kpi-label">Columns</div></div>
+                        <div class="output-kpi"><div class="output-kpi-value" id="kpi-wt-filled">--</div><div class="output-kpi-label">Fill Rate</div></div>
+                        <div class="output-kpi accent"><div class="output-kpi-value">WT</div><div class="output-kpi-label">Well Test</div></div>
+                    </div>
+                    <div class="output-toolbar">
+                        <div class="output-toolbar-left">
+                            <div class="output-search-wrap"><span class="output-search-icon">&#128269;</span><input type="text" class="output-search" id="search-wt" placeholder="Search columns or values..." oninput="App.filterOutputTable('wt')"></div>
+                            <span class="output-row-info" id="wt-info">0 columns &middot; 0 rows</span>
+                        </div>
+                        <div class="output-toolbar-right">
+                            <button class="btn btn-ghost btn-sm crud-btn" id="undo-wt" onclick="App.undoRecord('wt')" disabled title="Undo">&#8630; Undo</button>
+                            <button class="btn btn-ghost btn-sm crud-btn" id="redo-wt" onclick="App.redoRecord('wt')" disabled title="Redo">&#8631; Redo</button>
+                            <span class="toolbar-sep"></span>
+                            <button class="btn btn-danger-outline btn-sm crud-btn" id="bulk-del-wt" onclick="App.bulkDeleteRecords('wt')" style="display:none">&#128465; Delete Selected</button>
+                            <button class="btn btn-outline btn-sm crud-btn" onclick="App.cleanEmptyRows('wt')" title="Remove rows where all values are empty">&#128466; Clean Empty</button>
+                            <button class="btn btn-success-outline btn-sm crud-btn" onclick="App.addRecord('wt')">&#10010; Add Row</button>
+                            <span class="toolbar-sep"></span>
+                            <button class="btn btn-outline btn-sm" onclick="App.toggleOutputCompact('wt')">&oplus; Compact</button>
+                            <button class="btn btn-primary btn-sm" onclick="App.exportType('well_test')">&dArr; Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="output-table-container" id="output-container-wt">
+                        <div class="table-wrapper output-table-wrap">
+                            <table class="data-table output-data-table" id="table-wt"><thead id="thead-wt"></thead>
+                                <tbody id="tbody-wt"><tr><td class="empty-row" colspan="99">
+                                    <div class="output-empty"><div class="output-empty-icon">&#128300;</div><div class="output-empty-title">No Well Test Data</div><div class="output-empty-hint">Run a well test extraction to populate this table</div></div>
+                                </td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ═══════════════════════════════════════════════════
+                 CONCESSIONS MANAGEMENT
+                 ═══════════════════════════════════════════════════ -->
+            <div class="section" id="section-concessions">
+                <!-- Top bar -->
+                <div class="card" style="margin-bottom:14px">
+                    <div class="card-header">
+                        <div class="card-title">◈ Concessions</div>
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <input type="text" class="form-input" id="conc-search" placeholder="Search concessions..." style="width:220px;font-size:.82rem;padding:5px 10px">
+                            <button class="btn btn-primary btn-sm" onclick="ConcManager.showCreate()">+ New Concession</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats row -->
+                <div class="stats-grid" style="margin-bottom:14px">
+                    <div class="card stat-card"><div class="card-header"><div><div class="stat-label">Total</div><div class="stat-value" id="conc-total">0</div></div><div class="stat-icon">◈</div></div></div>
+                    <div class="card stat-card"><div class="card-header"><div><div class="stat-label">Active Daily</div><div class="stat-value" id="conc-active-d">0</div></div><div class="stat-icon" style="color:var(--accent)">●</div></div></div>
+                    <div class="card stat-card"><div class="card-header"><div><div class="stat-label">Active Monthly</div><div class="stat-value" id="conc-active-m">0</div></div><div class="stat-icon" style="color:var(--accent)">●</div></div></div>
+                    <div class="card stat-card"><div class="card-header"><div><div class="stat-label">Total Mappings</div><div class="stat-value" id="conc-total-maps">0</div></div><div class="stat-icon">⊞</div></div></div>
+                </div>
+
+                <!-- Concessions list -->
+                <div class="card">
+                    <div class="table-wrapper" style="max-height:600px">
+                        <table class="data-table" id="table-concessions">
+                            <thead>
+                                <tr>
+                                    <th style="width:25%">Name</th>
+                                    <th style="width:14%">DPR Alias</th>
+                                    <th style="width:9%">Daily</th>
+                                    <th style="width:9%">Monthly</th>
+                                    <th style="width:9%">WT</th>
+                                    <th style="width:7%">DC</th>
+                                    <th style="width:7%">DW</th>
+                                    <th style="width:7%">MC</th>
+                                    <th style="width:7%">WT</th>
+                                    <th style="width:6%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-concessions">
+                                <tr><td class="empty-row" colspan="10">Loading concessions...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════
+                 CONCESSION DETAIL (overlay)
+                 ═══════════════════════════════════════════════════ -->
+            <div class="section" id="section-conc-detail">
+                <div class="card" style="margin-bottom:14px">
+                    <div class="card-header">
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <button class="btn btn-outline btn-xs" onclick="ConcManager.backToList()">← Back</button>
+                            <div class="card-title" id="conc-detail-title">Concession</div>
+                        </div>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn btn-primary btn-sm" onclick="ConcManager.saveDetail()">💾 Save Changes</button>
+                            <button class="btn btn-outline btn-sm" style="color:var(--danger)" onclick="ConcManager.deleteCurrent()">🗑 Delete</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Basic info -->
+                <div class="card" style="margin-bottom:14px">
+                    <div class="card-header"><div class="card-title">Basic Information</div></div>
+                    <div class="field-row cols-3" style="padding:12px">
+                        <div class="form-group">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-input" id="cd-name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">DPR File Alias</label>
+                            <input type="text" class="form-input" id="cd-alias" placeholder="e.g. Abir">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">DPR Sheet</label>
+                            <input type="text" class="form-input" id="cd-sheet" placeholder="e.g. ABIR Concession">
+                        </div>
+                    </div>
+                    <div class="field-row cols-3" style="padding:0 12px 12px">
+                        <div class="form-group">
+                            <label class="form-label">Date Format</label>
+                            <select class="form-input" id="cd-datefmt">
+                                <option value="ddmmyyyy">ddmmyyyy</option>
+                                <option value="yyyymmdd">yyyymmdd</option>
+                                <option value="dd-mm-yyyy">dd-mm-yyyy</option>
+                                <option value="dd/mm/yyyy">dd/mm/yyyy</option>
+                                <option value="dd mm yyyy">dd mm yyyy</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display:flex;gap:16px;align-items:end;padding-bottom:2px">
+                            <label class="form-label" style="display:flex;gap:6px;align-items:center;cursor:pointer">
+                                <input type="checkbox" id="cd-active-d"> Active Daily
+                            </label>
+                            <label class="form-label" style="display:flex;gap:6px;align-items:center;cursor:pointer">
+                                <input type="checkbox" id="cd-active-m"> Active Monthly
+                            </label>
+                            <label class="form-label" style="display:flex;gap:6px;align-items:center;cursor:pointer">
+                                <input type="checkbox" id="cd-active-wt"> Active Well Test
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Monthly Report</label>
+                            <input type="text" class="form-input" id="cd-monthly" placeholder="Rapport mensuel...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mapping tabs -->
+                <div class="card">
+                    <div class="card-header" style="border-bottom:1px solid var(--border-light)">
+                        <div style="display:flex;gap:2px">
+                            <button class="btn btn-outline btn-xs mapping-tab active" data-tab="dc" onclick="ConcManager.switchTab('dc')">DC <span id="tab-dc-count" class="nav-badge" style="display:inline;margin-left:4px">0</span></button>
+                            <button class="btn btn-outline btn-xs mapping-tab" data-tab="dw" onclick="ConcManager.switchTab('dw')">DW <span id="tab-dw-count" class="nav-badge" style="display:inline;margin-left:4px">0</span></button>
+                            <button class="btn btn-outline btn-xs mapping-tab" data-tab="mc" onclick="ConcManager.switchTab('mc')">MC <span id="tab-mc-count" class="nav-badge" style="display:inline;margin-left:4px">0</span></button>
+                            <button class="btn btn-outline btn-xs mapping-tab" data-tab="wt" onclick="ConcManager.switchTab('wt')">WT <span id="tab-wt-count" class="nav-badge" style="display:inline;margin-left:4px">0</span></button>
+                        </div>
+                        <button class="btn btn-outline btn-xs" onclick="ConcManager.addMappingRow()">+ Add Row</button>
+                    </div>
+                    <div class="table-wrapper" style="max-height:500px">
+                        <table class="data-table" id="table-mappings">
+                            <thead id="thead-mappings"></thead>
+                            <tbody id="tbody-mappings">
+                                <tr><td class="empty-row" colspan="8">Select a mapping type above</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════
+                 UOM MANAGEMENT
+                 ═══════════════════════════════════════════════════ -->
+            <div class="section" id="section-uom-config">
+                <div class="card" style="margin-bottom:14px">
+                    <div class="card-header">
+                        <div class="card-title">⇌ Unit Conversions</div>
+                        <button class="btn btn-primary btn-sm" onclick="UomManager.showAdd()">+ Add Entry</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="table-wrapper" style="max-height:600px">
+                        <table class="data-table" id="table-uom">
+                            <thead>
+                                <tr><th>Source Unit</th><th>Conversion Factor</th><th>Target Unit</th><th style="width:60px"></th></tr>
+                            </thead>
+                            <tbody id="tbody-uom">
+                                <tr><td class="empty-row" colspan="4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════
+                 IMPORT
+                 ═══════════════════════════════════════════════════ -->
+            <div class="section" id="section-import-config">
+                <div class="card" style="margin-bottom:14px">
+                    <div class="card-header">
+                        <div class="card-title">↓ Import from Excel Files</div>
+                    </div>
+                </div>
+
+                <div class="stats-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+                    <!-- Moulinette import -->
+                    <div class="card">
+                        <div class="card-header"><div class="card-title">PMS_Loader (Moulinette)</div></div>
+                        <div style="padding:14px">
+                            <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:12px">
+                                Import concessions, UOM entries, QC rules, and naming rules from a PMS_Loader .xlsm file.
+                            </p>
+                            <div style="display:flex;gap:8px;align-items:center">
+                                <input type="file" id="import-moulinette-file" accept=".xlsm,.xlsx" style="font-size:.82rem;flex:1">
+                                <button class="btn btn-primary btn-sm" onclick="ImportManager.importMoulinette()">Import</button>
+                            </div>
+                            <div id="import-moulinette-result" style="margin-top:10px"></div>
+                        </div>
+                    </div>
+
+                    <!-- Mapping import -->
+                    <div class="card">
+                        <div class="card-header"><div class="card-title">Mapping File</div></div>
+                        <div style="padding:14px">
+                            <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:12px">
+                                Import cell-reference mappings from a Mapping_*.xlsx file. Auto-detects the target concession.
+                            </p>
+                            <div style="display:flex;gap:8px;align-items:center">
+                                <input type="file" id="import-mapping-file" accept=".xlsx" style="font-size:.82rem;flex:1">
+                                <button class="btn btn-primary btn-sm" onclick="ImportManager.importMapping()">Import</button>
+                            </div>
+                            <div id="import-mapping-result" style="margin-top:10px"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auto-detect from docs/ -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Auto-Import from docs/ folder</div>
+                        <button class="btn btn-outline btn-sm" onclick="ImportManager.autoDetect()">🔍 Scan & Import</button>
+                    </div>
+                    <div id="import-auto-result" style="padding:14px">
+                        <p style="color:var(--text-dim);font-size:.82rem">Scans the <code>docs/</code> folder for moulinette and mapping files, then imports them.</p>
+                    </div>
+                </div>
+
+                <!-- Backup / Restore -->
+                <div class="stats-grid" style="grid-template-columns:1fr 1fr;margin-top:14px">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title">💾 Backup Config</div></div>
+                        <div style="padding:14px">
+                            <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:12px">
+                                Download entire configuration (concessions, mappings, UOM, QC rules, naming rules) as a JSON file.
+                            </p>
+                            <button class="btn btn-primary btn-sm" onclick="ImportManager.downloadBackup()">⬇ Download Backup</button>
+                            <div id="backup-result" style="margin-top:10px"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><div class="card-title">📥 Restore Config</div></div>
+                        <div style="padding:14px">
+                            <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:12px">
+                                Upload a JSON backup file to replace all current configuration. <strong style="color:var(--warning)">This overwrites everything.</strong>
+                            </p>
+                            <div style="display:flex;gap:8px;align-items:center">
+                                <input type="file" id="restore-file" accept=".json" style="font-size:.82rem;flex:1">
+                                <button class="btn btn-primary btn-sm" onclick="ImportManager.restoreBackup()">Restore</button>
+                            </div>
+                            <div id="restore-result" style="margin-top:10px"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Copy Mappings between concessions -->
+                <div class="card" style="margin-top:14px">
+                    <div class="card-header"><div class="card-title">📋 Copy Mappings Between Concessions</div></div>
+                    <div style="padding:14px">
+                        <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:12px">
+                            Clone all cell mappings (DC/DW/MC/WT) from one concession to another. The target's existing mappings will be replaced.
+                        </p>
+                        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                            <label style="font-size:.82rem;font-weight:500">From:</label>
+                            <select id="copy-source" class="form-select" style="min-width:180px;font-size:.82rem"></select>
+                            <span style="font-size:1.1rem">→</span>
+                            <label style="font-size:.82rem;font-weight:500">To:</label>
+                            <select id="copy-target" class="form-select" style="min-width:180px;font-size:.82rem"></select>
+                            <button class="btn btn-primary btn-sm" onclick="ImportManager.copyMappings()">Copy All Mappings</button>
+                        </div>
+                        <div id="copy-result" style="margin-top:10px"></div>
+                    </div>
+                </div>
+
+                <!-- Bulk Toggle -->
+                <div class="card" style="margin-top:14px">
+                    <div class="card-header"><div class="card-title">⚡ Bulk Enable / Disable</div></div>
+                    <div style="padding:14px">
+                        <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:12px">
+                            Batch toggle all concessions for a specific extraction type.
+                        </p>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap">
+                            <button class="btn btn-outline btn-sm" onclick="ImportManager.bulkToggle('active_daily', true)">✅ Enable All Daily</button>
+                            <button class="btn btn-outline btn-sm" onclick="ImportManager.bulkToggle('active_daily', false)">⬜ Disable All Daily</button>
+                            <span style="width:12px"></span>
+                            <button class="btn btn-outline btn-sm" onclick="ImportManager.bulkToggle('active_monthly', true)">✅ Enable All Monthly</button>
+                            <button class="btn btn-outline btn-sm" onclick="ImportManager.bulkToggle('active_monthly', false)">⬜ Disable All Monthly</button>
+                            <span style="width:12px"></span>
+                            <button class="btn btn-outline btn-sm" onclick="ImportManager.bulkToggle('active_well_test', true)">✅ Enable All WT</button>
+                            <button class="btn btn-outline btn-sm" onclick="ImportManager.bulkToggle('active_well_test', false)">⬜ Disable All WT</button>
+                        </div>
+                        <div id="bulk-result" style="margin-top:10px"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════
+                 USER MANAGEMENT (ADMIN ONLY)
+                 ═══════════════════════════════════════════════════ -->
+            <div class="section" id="section-users">
+                <!-- Bento stats grid -->
+                <div class="bento-stats-grid">
+                    <div class="glass-card users-stats-card">
+                        <div class="users-stats-icon">👥</div>
+                        <div>
+                            <div class="output-kpi-value" id="stats-total-users">0</div>
+                            <div class="output-kpi-label" data-i18n="users.total_accounts">Total Accounts</div>
+                        </div>
+                    </div>
+                    <div class="glass-card users-stats-card">
+                        <div class="users-stats-icon admin">🛡️</div>
+                        <div>
+                            <div class="output-kpi-value" id="stats-admin-users" style="color: var(--success)">0</div>
+                            <div class="output-kpi-label" data-i18n="users.admins">Administrators</div>
+                        </div>
+                    </div>
+                    <div class="glass-card users-stats-card">
+                        <div class="users-stats-icon operator">👷</div>
+                        <div>
+                            <div class="output-kpi-value" id="stats-regular-users" style="color: var(--info)">0</div>
+                            <div class="output-kpi-label" data-i18n="users.operators">Operators / Engineers</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Directory card -->
+                <div class="glass-card users-directory-card">
+                    <div class="users-toolbar">
+                        <div class="users-toolbar-left">
+                            <div class="users-search-wrap">
+                                <span class="users-search-icon">🔍</span>
+                                <input type="text" class="users-search-input" id="search-users" data-i18n="users.search_placeholder" placeholder="Search users by name, email, company..." oninput="UserManager.filterUsers()">
+                            </div>
+                        </div>
+                        <div class="users-toolbar-right">
+                            <button class="btn btn-primary btn-sm" onclick="UserManager.openAddModal()" style="display: flex; align-items: center; gap: 6px;">
+                                <span>➕</span> <span data-i18n="users.add_user">Add User</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="output-table-container">
+                        <div class="table-wrapper" style="max-height: 550px; overflow-y: auto; border: none; border-radius: 0;">
+                            <table class="data-table" id="users-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid var(--border-light); background: rgba(255,255,255,0.15);">
+                                        <th style="padding: 12px 20px; font-weight: 600; color: var(--text-secondary);" data-i18n="users.table.name">User Details</th>
+                                        <th style="padding: 12px 20px; font-weight: 600; color: var(--text-secondary);" data-i18n="users.table.company">Company</th>
+                                        <th style="padding: 12px 20px; font-weight: 600; color: var(--text-secondary);" data-i18n="users.table.role">Role</th>
+                                        <th style="padding: 12px 20px; font-weight: 600; color: var(--text-secondary);" data-i18n="users.table.created">Created At</th>
+                                        <th style="padding: 12px 20px; font-weight: 600; color: var(--text-secondary); text-align: right;" data-i18n="users.table.actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-tbody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ═══════════════════════════════════════════════════
+                 LOGS
+                 ═══════════════════════════════════════════════════ -->
+            <div class="section" id="section-logs">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title" data-i18n="logs.title">Application Logs</div>
+                        <button class="btn btn-outline btn-sm" onclick="App.clearLogs()" data-i18n="btn.clear">Clear</button>
+                    </div>
+                    <div class="log-console" id="full-logs" style="max-height:600px"></div>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     RECORD DETAIL OVERLAY — shows when clicking a row
+     ═══════════════════════════════════════════════════ -->
+<div class="record-overlay" id="record-overlay" style="display:none">
+    <div class="record-overlay-header">
+        <div class="record-overlay-title-wrap">
+            <button class="btn btn-outline btn-sm" onclick="App.closeRecordDetail()">← Back</button>
+            <h2 class="record-overlay-title" id="record-overlay-title">Record Detail</h2>
+            <span class="record-overlay-badge" id="record-overlay-badge"></span>
+        </div>
+        <div class="record-overlay-actions">
+            <button class="btn btn-outline btn-sm" id="record-nav-prev" onclick="App.navRecordDetail(-1)">‹ Previous</button>
+            <span class="record-overlay-pos" id="record-overlay-pos">1 / 10</span>
+            <button class="btn btn-outline btn-sm" id="record-nav-next" onclick="App.navRecordDetail(1)">Next ›</button>
+        </div>
+    </div>
+    <div class="record-overlay-body" id="record-overlay-body">
+        <!-- Populated by JS -->
+    </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     USER MANAGEMENT MODALS
+     ═══════════════════════════════════════════════════ -->
+
+<!-- Add User Modal -->
+<div class="glass-modal-overlay" id="modal-add-user">
+    <div class="glass-modal-container form-medium">
+        <div class="glass-modal-header">
+            <div class="glass-modal-title" data-i18n="users.modal.add.title">
+                <span>👤</span> Create New Account
+            </div>
+            <button class="glass-modal-close" onclick="UserManager.closeModals()">×</button>
+        </div>
+        <form id="form-add-user" class="glass-modal-form">
+            <div id="add-user-error" style="display: none; padding: 10px; border-radius: var(--radius-xs); background: var(--error-light); border: 1px solid rgba(192, 57, 43, 0.2); color: var(--error); font-size: 0.8rem;"></div>
+            
+            <div class="glass-modal-field">
+                <label class="glass-modal-label" data-i18n="users.form.fullname">Full Name</label>
+                <input type="text" id="add-fullname" class="glass-modal-input" required placeholder="John Doe">
+            </div>
+            
+            <div class="glass-modal-field">
+                <label class="glass-modal-label" data-i18n="users.form.email">Email Address</label>
+                <input type="email" id="add-email" class="glass-modal-input" required placeholder="operator@etap.com">
+            </div>
+
+            <div class="glass-modal-field">
+                <label class="glass-modal-label" data-i18n="users.form.company">Company / Organization</label>
+                <input type="text" id="add-company" class="glass-modal-input" placeholder="ETAP">
+            </div>
+
+            <div class="glass-modal-field">
+                <label class="glass-modal-label" data-i18n="users.form.password">Initial Password</label>
+                <input type="password" id="add-password" class="glass-modal-input" required placeholder="••••••••">
+            </div>
+
+            <div class="glass-modal-field">
+                <label class="glass-modal-label" data-i18n="users.form.role">Assigned Role</label>
+                <select id="add-role" class="glass-modal-select">
+                    <option value="user" data-i18n="auth.register.role.op">Operator</option>
+                    <option value="admin" data-i18n="auth.register.role.adm">Administrator</option>
+                </select>
+            </div>
+
+            <div class="glass-modal-footer">
+                <button type="button" class="btn btn-outline btn-sm" onclick="UserManager.closeModals()" data-i18n="users.btn.cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm" data-i18n="users.btn.create">Create Account</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Role Modal -->
+<div class="glass-modal-overlay" id="modal-edit-role">
+    <div class="glass-modal-container form-small">
+        <div class="glass-modal-header">
+            <div class="glass-modal-title" data-i18n="users.modal.edit.title">
+                <span>🛡️</span> Change Account Role
+            </div>
+            <button class="glass-modal-close" onclick="UserManager.closeModals()">×</button>
+        </div>
+        <form id="form-edit-role" class="glass-modal-form">
+            <input type="hidden" id="edit-role-userid">
+            <div id="edit-role-error" style="display: none; padding: 10px; border-radius: var(--radius-xs); background: var(--error-light); border: 1px solid rgba(192, 57, 43, 0.2); color: var(--error); font-size: 0.8rem;"></div>
+            
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px; line-height: 1.4;">
+                Modify administrative privileges for <strong id="edit-role-username" style="color: var(--text-primary)"></strong>.
+            </div>
+
+            <div class="glass-modal-field">
+                <label class="glass-modal-label" data-i18n="users.form.role">Assigned Role</label>
+                <select id="edit-role-select" class="glass-modal-select">
+                    <option value="user" data-i18n="auth.register.role.op">Operator</option>
+                    <option value="admin" data-i18n="auth.register.role.adm">Administrator</option>
+                </select>
+            </div>
+
+            <div class="glass-modal-footer">
+                <button type="button" class="btn btn-outline btn-sm" onclick="UserManager.closeModals()" data-i18n="users.btn.cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm" data-i18n="users.btn.save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="glass-modal-overlay" id="modal-reset-password">
+    <div class="glass-modal-container form-small">
+        <div class="glass-modal-header">
+            <div class="glass-modal-title" data-i18n="users.modal.reset.title">
+                <span>🔑</span> Reset Password
+            </div>
+            <button class="glass-modal-close" onclick="UserManager.closeModals()">×</button>
+        </div>
+        <form id="form-reset-password" class="glass-modal-form">
+            <input type="hidden" id="reset-pwd-userid">
+            <div id="reset-pwd-error" style="display: none; padding: 10px; border-radius: var(--radius-xs); background: var(--error-light); border: 1px solid rgba(192, 57, 43, 0.2); color: var(--error); font-size: 0.8rem;"></div>
+            
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px; line-height: 1.4;">
+                Set a new password for <strong id="reset-pwd-username" style="color: var(--text-primary)"></strong>.
+            </div>
+
+            <div class="glass-modal-field">
+                <label class="glass-modal-label" data-i18n="users.form.password">New Password</label>
+                <input type="password" id="reset-pwd-input" class="glass-modal-input" required placeholder="••••••••">
+            </div>
+
+            <div class="glass-modal-footer">
+                <button type="button" class="btn btn-outline btn-sm" onclick="UserManager.closeModals()" data-i18n="users.btn.cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm" data-i18n="users.btn.save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+@keyframes modalAppear {
+    from { transform: scale(0.96); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.49.0/dist/apexcharts.min.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/config.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/users.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

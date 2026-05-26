@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Diagramme de Cas d'Utilisation — DPR Analytics Hub</title>
+<style>
+  @page { size: A3 landscape; margin: 8mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #eee;
+    display: flex; justify-content: center; padding: 20px;
+  }
+  .page {
+    background: white;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    padding: 25px 20px; display: inline-block;
+  }
+  @media print {
+    body { background: white; padding: 0; }
+    .page { box-shadow: none; padding: 8mm; }
+  }
+  h1 {
+    text-align: center; font-size: 22px; color: #1a3c5e;
+    border: 3px solid #1a3c5e; display: inline-block;
+    padding: 6px 24px; border-radius: 4px;
+  }
+  .title-wrap { text-align: center; margin-bottom: 12px; }
+  .subtitle { font-size: 12px; color: #666; margin-top: 3px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="title-wrap">
+    <h1>DIAGRAMME DE CAS D'UTILISATION</h1>
+    <div class="subtitle">DPR Analytics Hub — Stage PFE — ETAP — 2026</div>
+  </div>
+
+<svg width="1200" height="850" viewBox="0 0 1200 850" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Tahoma, sans-serif">
+  <defs>
+    <marker id="tri" markerWidth="14" markerHeight="9" refX="14" refY="4.5" orient="auto">
+      <polygon points="0 0, 14 4.5, 0 9" fill="white" stroke="#555" stroke-width="1.2"/>
+    </marker>
+  </defs>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--          SYSTEM BOUNDARY                   -->
+  <!-- ══════════════════════════════════════════ -->
+  <rect x="210" y="20" width="770" height="820" rx="10" ry="10"
+        fill="#f8fbff" stroke="#1a6b8a" stroke-width="2.5"/>
+  <text x="595" y="50" text-anchor="middle" font-size="15" font-weight="800" fill="#1a3c5e">
+    DPR Analytics Hub
+  </text>
+  <text x="595" y="66" text-anchor="middle" font-size="10" fill="#888" font-style="italic">«système»</text>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--           ACTORS (LEFT SIDE)               -->
+  <!-- ══════════════════════════════════════════ -->
+
+  <!-- ─── Utilisateur ─── Y center = 130 -->
+  <g transform="translate(80, 105)">
+    <circle cx="0" cy="0" r="11" fill="none" stroke="#1a3c5e" stroke-width="2"/>
+    <line x1="0" y1="11" x2="0" y2="35" stroke="#1a3c5e" stroke-width="2"/>
+    <line x1="-15" y1="20" x2="15" y2="20" stroke="#1a3c5e" stroke-width="2"/>
+    <line x1="0" y1="35" x2="-11" y2="50" stroke="#1a3c5e" stroke-width="2"/>
+    <line x1="0" y1="35" x2="11" y2="50" stroke="#1a3c5e" stroke-width="2"/>
+    <text x="0" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#1a3c5e">Utilisateur</text>
+  </g>
+
+  <!-- ─── Administrateur ─── Y center = 330 -->
+  <g transform="translate(80, 310)">
+    <circle cx="0" cy="0" r="11" fill="none" stroke="#c75b00" stroke-width="2"/>
+    <line x1="0" y1="11" x2="0" y2="35" stroke="#c75b00" stroke-width="2"/>
+    <line x1="-15" y1="20" x2="15" y2="20" stroke="#c75b00" stroke-width="2"/>
+    <line x1="0" y1="35" x2="-11" y2="50" stroke="#c75b00" stroke-width="2"/>
+    <line x1="0" y1="35" x2="11" y2="50" stroke="#c75b00" stroke-width="2"/>
+    <text x="0" y="68" text-anchor="middle" font-size="11" font-weight="700" fill="#c75b00">Administrateur</text>
+  </g>
+
+  <!-- ─── Ingénieur ─── Y center = 640 -->
+  <g transform="translate(80, 620)">
+    <circle cx="0" cy="0" r="11" fill="none" stroke="#6a1b9a" stroke-width="2"/>
+    <line x1="0" y1="11" x2="0" y2="35" stroke="#6a1b9a" stroke-width="2"/>
+    <line x1="-15" y1="20" x2="15" y2="20" stroke="#6a1b9a" stroke-width="2"/>
+    <line x1="0" y1="35" x2="-11" y2="50" stroke="#6a1b9a" stroke-width="2"/>
+    <line x1="0" y1="35" x2="11" y2="50" stroke="#6a1b9a" stroke-width="2"/>
+    <text x="0" y="68" text-anchor="middle" font-size="11" font-weight="700" fill="#6a1b9a">Ingénieur</text>
+  </g>
+
+  <!-- ═══ Generalization ═══ -->
+  <line x1="80" y1="272" x2="80" y2="185" stroke="#555" stroke-width="1.4" marker-end="url(#tri)"/>
+  <line x1="80" y1="582" x2="80" y2="185" stroke="#555" stroke-width="1.4" marker-end="url(#tri)"/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--           ACTOR (RIGHT SIDE)               -->
+  <!-- ══════════════════════════════════════════ -->
+
+  <!-- ─── Système ─── Y center = 640 -->
+  <g transform="translate(1120, 620)">
+    <circle cx="0" cy="0" r="11" fill="none" stroke="#2e7d32" stroke-width="2"/>
+    <line x1="0" y1="11" x2="0" y2="35" stroke="#2e7d32" stroke-width="2"/>
+    <line x1="-15" y1="20" x2="15" y2="20" stroke="#2e7d32" stroke-width="2"/>
+    <line x1="0" y1="35" x2="-11" y2="50" stroke="#2e7d32" stroke-width="2"/>
+    <line x1="0" y1="35" x2="11" y2="50" stroke="#2e7d32" stroke-width="2"/>
+    <text x="0" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#2e7d32">Système</text>
+  </g>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--    ZONE 1 — Utilisateur (Y: 85–195)        -->
+  <!-- ══════════════════════════════════════════ -->
+
+  <ellipse cx="400" cy="105" rx="115" ry="24" fill="#e0f7fa" stroke="#00838f" stroke-width="1.6"/>
+  <text x="400" y="109" text-anchor="middle" font-size="11" font-weight="600" fill="#1a3c5e">1. S'authentifier</text>
+
+  <ellipse cx="680" cy="105" rx="115" ry="24" fill="#e0f7fa" stroke="#00838f" stroke-width="1.6"/>
+  <text x="680" y="109" text-anchor="middle" font-size="11" font-weight="600" fill="#1a3c5e">12. Changer la langue</text>
+
+  <!-- Separator line -->
+  <line x1="230" y1="155" x2="960" y2="155" stroke="#dde8ee" stroke-width="1"/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--    ZONE 2 — Administrateur (Y: 195–430)    -->
+  <!-- ══════════════════════════════════════════ -->
+
+  <ellipse cx="460" cy="220" rx="140" ry="24" fill="#fff3e0" stroke="#e65100" stroke-width="1.6"/>
+  <text x="460" y="224" text-anchor="middle" font-size="11" font-weight="600" fill="#1a3c5e">2. Configurer le système</text>
+
+  <ellipse cx="460" cy="310" rx="140" ry="24" fill="#fff3e0" stroke="#e65100" stroke-width="1.6"/>
+  <text x="460" y="314" text-anchor="middle" font-size="11" font-weight="600" fill="#1a3c5e">3. Gérer les concessions</text>
+
+  <ellipse cx="460" cy="400" rx="150" ry="24" fill="#fff3e0" stroke="#e65100" stroke-width="1.6"/>
+  <text x="460" y="404" text-anchor="middle" font-size="11" font-weight="600" fill="#1a3c5e">4. Gérer les mappings cellulaires</text>
+
+  <!-- Separator line -->
+  <line x1="230" y1="448" x2="960" y2="448" stroke="#dde8ee" stroke-width="1"/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--    ZONE 3 — Ingénieur (Y: 448–830)        -->
+  <!--    2 columns to spread things out          -->
+  <!-- ══════════════════════════════════════════ -->
+
+  <!-- LEFT COLUMN -->
+  <ellipse cx="400" cy="500" rx="130" ry="24" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.6"/>
+  <text x="400" y="504" text-anchor="middle" font-size="11" font-weight="600" fill="#1a3c5e">5. Gérer les fichiers DPR</text>
+
+  <ellipse cx="400" cy="580" rx="140" ry="24" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.6"/>
+  <text x="400" y="584" text-anchor="middle" font-size="11" font-weight="600" fill="#1a3c5e">6. Extraire les données</text>
+
+  <ellipse cx="400" cy="660" rx="135" ry="24" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.6"/>
+  <text x="400" y="664" text-anchor="middle" font-size="11" font-weight="600" fill="#1a3c5e">7. Corriger les données</text>
+
+  <ellipse cx="400" cy="740" rx="140" ry="24" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.6"/>
+  <text x="400" y="744" text-anchor="middle" font-size="11" font-weight="600" fill="#1a3c5e">8. Consulter les résultats</text>
+
+  <!-- RIGHT COLUMN -->
+  <ellipse cx="730" cy="500" rx="125" ry="24" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.6"/>
+  <text x="730" y="504" text-anchor="middle" font-size="11" font-weight="600" fill="#1a3c5e">9. Exporter en CSV</text>
+
+  <ellipse cx="730" cy="580" rx="135" ry="24" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.6"/>
+  <text x="730" y="584" text-anchor="middle" font-size="11" font-weight="600" fill="#1a3c5e">10. Consulter le dashboard</text>
+
+  <ellipse cx="730" cy="660" rx="120" ry="24" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.6"/>
+  <text x="730" y="664" text-anchor="middle" font-size="11" font-weight="600" fill="#1a3c5e">11. Consulter les logs</text>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--         ASSOCIATION LINES                   -->
+  <!-- ══════════════════════════════════════════ -->
+
+  <!-- Utilisateur → UC1 (horizontal) -->
+  <line x1="105" y1="105" x2="285" y2="105" stroke="#00838f" stroke-width="1.3"/>
+  <!-- Utilisateur → UC12 -->
+  <line x1="105" y1="115" x2="565" y2="105" stroke="#00838f" stroke-width="1.3"/>
+
+  <!-- Admin → UC2 -->
+  <line x1="115" y1="305" x2="320" y2="225" stroke="#e65100" stroke-width="1.3"/>
+  <!-- Admin → UC3 -->
+  <line x1="115" y1="315" x2="320" y2="310" stroke="#e65100" stroke-width="1.3"/>
+  <!-- Admin → UC4 -->
+  <line x1="115" y1="330" x2="310" y2="400" stroke="#e65100" stroke-width="1.3"/>
+
+  <!-- Ingénieur → UC5 -->
+  <line x1="110" y1="610" x2="270" y2="505" stroke="#6a1b9a" stroke-width="1.3"/>
+  <!-- Ingénieur → UC6 -->
+  <line x1="110" y1="615" x2="260" y2="580" stroke="#6a1b9a" stroke-width="1.3"/>
+  <!-- Ingénieur → UC7 -->
+  <line x1="110" y1="625" x2="265" y2="660" stroke="#6a1b9a" stroke-width="1.3"/>
+  <!-- Ingénieur → UC8 -->
+  <line x1="110" y1="635" x2="260" y2="740" stroke="#6a1b9a" stroke-width="1.3"/>
+  <!-- Ingénieur → UC9 -->
+  <line x1="115" y1="605" x2="605" y2="500" stroke="#6a1b9a" stroke-width="1.3" stroke-dasharray="none"/>
+  <!-- Ingénieur → UC10 -->
+  <line x1="115" y1="615" x2="595" y2="580" stroke="#6a1b9a" stroke-width="1.3"/>
+  <!-- Ingénieur → UC11 -->
+  <line x1="115" y1="618" x2="610" y2="660" stroke="#6a1b9a" stroke-width="1.3"/>
+
+  <!-- Système → UC6 -->
+  <line x1="1100" y1="615" x2="540" y2="580" stroke="#2e7d32" stroke-width="1.3"/>
+  <!-- Système → UC7 -->
+  <line x1="1100" y1="625" x2="535" y2="660" stroke="#2e7d32" stroke-width="1.3"/>
+  <!-- Système → UC9 -->
+  <line x1="1100" y1="610" x2="855" y2="500" stroke="#2e7d32" stroke-width="1.3"/>
+  <!-- Système → UC11 -->
+  <line x1="1100" y1="630" x2="850" y2="660" stroke="#2e7d32" stroke-width="1.3"/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--     INCLUDE / EXTEND (dashed)              -->
+  <!-- ══════════════════════════════════════════ -->
+
+  <!-- UC6 «include» UC5 -->
+  <line x1="400" y1="556" x2="400" y2="524" stroke="#555" stroke-width="1.1" stroke-dasharray="5,3"/>
+  <text x="425" y="544" font-size="9" fill="#555" font-style="italic">«include»</text>
+
+  <!-- UC7 «extend» UC6 -->
+  <line x1="400" y1="604" x2="400" y2="636" stroke="#555" stroke-width="1.1" stroke-dasharray="5,3"/>
+  <text x="425" y="624" font-size="9" fill="#555" font-style="italic">«extend»</text>
+
+</svg>
+</div>
+</body>
+</html>

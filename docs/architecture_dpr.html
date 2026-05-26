@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Architecture MVC — DPR Manager</title>
+<style>
+  @page { size: A3 landscape; margin: 20mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: #f0f0f0;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  @media print {
+    body { background: #f0f0f0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  .page {
+    width: 390mm; height: 260mm;
+    background: #f0f0f0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Title ──────────────── */
+  .title {
+    text-align: center;
+    padding-top: 10mm;
+    margin-bottom: 6mm;
+  }
+  .title h1 {
+    font-size: 32pt; font-weight: 900; color: #1a1a1a;
+    letter-spacing: -0.5px;
+  }
+  .title p {
+    font-size: 12pt; color: #666; margin-top: 2mm;
+    font-weight: 400;
+  }
+
+  /* ── Boxes ──────────────── */
+  .box {
+    position: absolute;
+    border-radius: 14px;
+    padding: 18px 22px;
+    display: flex; flex-direction: column;
+  }
+  .box-label {
+    font-size: 16pt; font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .box-content {
+    font-size: 11pt; line-height: 1.6; color: #333;
+  }
+  .box-content strong { font-weight: 700; }
+
+  /* Model box - purple */
+  .model {
+    top: 65mm; left: 20mm;
+    width: 130mm; height: 95mm;
+    background: #e8dff5;
+    border: 3px solid #c4b1e0;
+  }
+  .model .box-label { color: #5b3a8c; }
+
+  /* View box - teal */
+  .view {
+    top: 65mm; right: 20mm;
+    width: 130mm; height: 95mm;
+    background: #d5f0ec;
+    border: 3px solid #9dd5cb;
+  }
+  .view .box-label { color: #1a7a6a; }
+
+  /* Controller box - yellow */
+  .controller {
+    bottom: 25mm; left: 50%; transform: translateX(-50%);
+    width: 145mm; height: 75mm;
+    background: #fef9e0;
+    border: 3px solid #f0e4a0;
+  }
+  .controller .box-label { color: #8a7a20; }
+
+  /* Database icon area */
+  .database {
+    position: absolute;
+    top: 62mm; left: 50%; transform: translateX(-50%);
+    text-align: center;
+  }
+  .db-icon {
+    font-size: 48pt;
+    display: block;
+    margin-bottom: 3mm;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  }
+  .db-label {
+    font-size: 12pt; font-weight: 800; color: #c0406a;
+  }
+  .db-sub {
+    font-size: 8.5pt; color: #888; max-width: 60mm;
+    margin-top: 1mm;
+  }
+
+  /* End User */
+  .end-user {
+    position: absolute;
+    bottom: 35mm; left: 25mm;
+    text-align: center;
+  }
+  .user-icon {
+    font-size: 44pt;
+    display: block;
+    margin-bottom: 2mm;
+  }
+  .user-label {
+    font-size: 12pt; font-weight: 800; color: #3a2a6a;
+  }
+  .user-sub {
+    font-size: 8.5pt; color: #888;
+    margin-top: 1mm;
+  }
+
+  /* ── Arrows (SVG) ──────── */
+  .arrows {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .arrows line, .arrows path {
+    stroke: #333;
+    stroke-width: 2;
+    fill: none;
+  }
+  .arrows polygon {
+    fill: #333;
+  }
+  .arrow-label {
+    font-size: 10pt; fill: #555;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-weight: 600;
+  }
+
+  /* ── Legend at bottom ───── */
+  .legend {
+    position: absolute;
+    bottom: 6mm; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 20mm; align-items: center;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 3mm;
+    font-size: 9pt; color: #555;
+  }
+  .legend-dot {
+    width: 10mm; height: 5mm; border-radius: 3px;
+    border: 1.5px solid rgba(0,0,0,0.15);
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <!-- Title -->
+  <div class="title">
+    <h1>Architecture MVC — DPR Manager</h1>
+    <p>Application de Gestion des Données de Production (ETAP) — Patron Modèle-Vue-Contrôleur</p>
+  </div>
+
+  <!-- DATABASE -->
+  <div class="database">
+    <span class="db-icon">🗄️</span>
+    <div class="db-label">Base de Données</div>
+    <div class="db-sub">SQLite — Utilisateurs, configurations,<br>résultats de production</div>
+  </div>
+
+  <!-- MODEL -->
+  <div class="box model">
+    <div class="box-label">Modèle (Model)</div>
+    <div class="box-content">
+      <strong>Pipeline de traitement ETL</strong><br><br>
+      📥 Extraction des fichiers Excel DPR<br>
+      🧹 Nettoyage heuristique des données<br>
+      📤 Export CSV et sauvegarde en base<br>
+      🗺️ Application des mappings concessions
+    </div>
+  </div>
+
+  <!-- VIEW -->
+  <div class="box view">
+    <div class="box-label">Vue (View)</div>
+    <div class="box-content">
+      <strong>Interface Web dynamique</strong><br><br>
+      📊 Tableau de bord interactif avec graphiques<br>
+      🔐 Pages de connexion et d'inscription<br>
+      🌐 Traduction FR / EN en temps réel<br>
+      📱 Affichage responsive et adaptatif
+    </div>
+  </div>
+
+  <!-- CONTROLLER -->
+  <div class="box controller">
+    <div class="box-label">Contrôleur (Controller)</div>
+    <div class="box-content">
+      <strong>Serveur API REST (FastAPI)</strong><br><br>
+      🔀 Routage des requêtes HTTP vers les services<br>
+      🛡️ Validation automatique des données entrantes<br>
+      🔐 Authentification et gestion des sessions<br>
+      📡 Envoi de logs en temps réel via WebSocket
+    </div>
+  </div>
+
+  <!-- END USER -->
+  <div class="end-user">
+    <span class="user-icon">💻</span>
+    <div class="user-label">Utilisateur Final</div>
+    <div class="user-sub">Opérateur / Ingénieur</div>
+  </div>
+
+  <!-- ARROWS -->
+  <svg class="arrows" viewBox="0 0 1476 984" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <marker id="ah" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+      </marker>
+      <marker id="ah-rev" markerWidth="10" markerHeight="7" refX="1" refY="3.5" orient="auto">
+        <polygon points="10 0, 0 3.5, 10 7" fill="#333"/>
+      </marker>
+    </defs>
+
+    <!-- Model ←→ Database -->
+    <line x1="510" y1="340" x2="660" y2="300" marker-end="url(#ah)" marker-start="url(#ah-rev)"/>
+
+    <!-- Database ←→ View -->
+    <line x1="815" y1="300" x2="970" y2="340" marker-end="url(#ah)" marker-start="url(#ah-rev)"/>
+
+    <!-- Controller → Model (Fetch Data) -->
+    <line x1="600" y1="700" x2="350" y2="560" marker-end="url(#ah)"/>
+    <text class="arrow-label" x="420" y="650" transform="rotate(-30, 420, 650)">Chercher les données</text>
+
+    <!-- Controller → View (Fetch Presentation) -->
+    <line x1="880" y1="700" x2="1100" y2="560" marker-end="url(#ah)"/>
+    <text class="arrow-label" x="930" y="620" transform="rotate(30, 980, 650)">Mettre à jour l'affichage</text>
+
+    <!-- End User → Controller (Request) -->
+    <line x1="260" y1="790" x2="560" y2="760" marker-end="url(#ah)"/>
+    <text class="arrow-label" x="340" y="760">Requête HTTP</text>
+
+    <!-- Controller → End User (Response) -->
+    <line x1="560" y1="810" x2="260" y2="840" marker-end="url(#ah)"/>
+    <text class="arrow-label" x="340" y="860">Réponse JSON</text>
+  </svg>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#e8dff5;border-color:#c4b1e0"></div>
+      Modèle — Logique métier & données
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#d5f0ec;border-color:#9dd5cb"></div>
+      Vue — Interface utilisateur
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#fef9e0;border-color:#f0e4a0"></div>
+      Contrôleur — Gestion des requêtes
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#f8d7e4;border-color:#e8a0b8"></div>
+      Base de données — Persistance
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

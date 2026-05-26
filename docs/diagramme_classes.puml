@@ -1,0 +1,164 @@
+@startuml DPR_Classes
+top to bottom direction
+skinparam linetype polyline
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam nodesep 25
+skinparam ranksep 25
+
+skinparam class {
+    BackgroundColor #F5F5FF
+    BorderColor #666699
+    FontSize 11
+    AttributeFontSize 9
+    StereotypeFontSize 9
+    ArrowColor #444444
+    FontStyle bold
+}
+
+' ======================================================
+' SERVICES
+' ======================================================
+
+class LogService <<Singleton>> {
+    -_instance : LogService
+    -_clients : List
+    -_history : List
+    -_log_file : Path
+    --
+    +get() : LogService
+    +log(msg, level, src) : Dict
+    +info(msg, src)
+    +warning(msg, src)
+    +error(msg, src)
+    +get_history(limit) : List
+    +clear_history()
+}
+
+class ParserService {
+    +logger : LogService
+    --
+    +extract(type, folder, date, ...) : Dict
+    +auto_correct(data) : Dict
+}
+
+class ExporterService {
+    +logger : LogService
+    --
+    +export_csv(data, type, folder, date) : Path
+    +export_all(dc, dw, mc, wt, ...) : List
+    +list_exports(folder) : List
+}
+
+' ======================================================
+' CONTROLEUR AUTHENTIFICATION
+' ======================================================
+
+class AuthRouter <<Controller>> {
+    +register(user: Utilisateur) : Dict
+    +login(email, password) : Dict
+    +logout(request) : Dict
+    +get_users() : List
+    +create_user(user: Utilisateur) : Dict
+    +update_user(id, data: Utilisateur) : Dict
+    +delete_user(id) : Dict
+}
+
+' ======================================================
+' ENUM
+' ======================================================
+
+class ReportType <<Enum>> {
+    DAILY
+    DC
+    DW
+    MONTHLY
+    WELL_TEST
+}
+
+' ======================================================
+' DOMAINE & CONFIGURATION
+' ======================================================
+
+class ColumnSchema {
+    +attribute : str
+    +code : str
+    +column_index : int
+}
+
+class Concession {
+    +id : str
+    +name : str
+    +dpr_file_alias : str
+    +dpr_sheet : str
+    +active_daily : bool
+    +active_monthly : bool
+    +active_well_test : bool
+    +mappings : ConcessionMappings
+}
+
+class MappingEntry {
+    +file_alias : str
+    +sheet_name : str
+    +template_type : str
+    +attribute : str
+    +attribute_code : str
+    +cell_ref : str
+    +unit : str
+}
+
+class UOMEntry {
+    +unit : str
+    +factor : float
+    +target_unit : str
+}
+
+class QCRule {
+    +search_value : str
+    +replace_value : str
+    +active : bool
+}
+
+' ======================================================
+' DTOs SECURITE
+' ======================================================
+
+class Utilisateur {
+    +full_name : str
+    +email : str
+    +company : str
+    +role : str
+    +password : str
+}
+
+' ======================================================
+' RELATIONS
+' ======================================================
+
+' -- Association dirigee : Services -> LogService --
+ParserService --> LogService : journalise
+ExporterService --> LogService : journalise
+AuthRouter --> LogService : journalise
+
+' -- Composition --
+Concession "1" *-- "0..*" MappingEntry
+
+' -- Agregation --
+Concession o-- "0..*" UOMEntry
+Concession o-- "0..*" QCRule
+
+' -- Dependances fonctionnelles --
+ParserService ..> Concession
+ParserService ..> ReportType
+ParserService ..> ColumnSchema
+ParserService ..> MappingEntry
+ParserService ..> QCRule
+ExporterService ..> ReportType
+ExporterService ..> ColumnSchema
+
+' -- AuthRouter -> DTOs --
+AuthRouter ..> Utilisateur : <<uses>>
+
+@enduml

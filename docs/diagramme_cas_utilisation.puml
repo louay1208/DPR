@@ -1,0 +1,106 @@
+@startuml DPR_UseCases
+
+' ── Style ──────────────────────────────────────────────────
+left to right direction
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam dpi 150
+skinparam nodesep 10
+skinparam ranksep 50
+skinparam linetype polyline
+
+skinparam usecase {
+    BackgroundColor #FDEBD0
+    BorderColor #D4A03C
+    FontSize 11
+    FontStyle plain
+    ArrowColor #555555
+    ArrowThickness 1.2
+}
+
+skinparam actor {
+    FontSize 12
+    FontStyle bold
+}
+
+skinparam rectangle {
+    BorderColor #336699
+    BackgroundColor #FFFFFF
+    FontSize 14
+    FontStyle bold
+}
+
+skinparam note {
+    BackgroundColor #FFFFDD
+    BorderColor #CCCC88
+    FontSize 9
+}
+
+title Diagramme de Cas d'Utilisation — Application DPR Manager
+
+' ── Acteurs ────────────────────────────────────────────────
+:Administrateur: as Admin
+:Employé: as Emp
+
+Admin --|> Emp
+
+' ── Système ────────────────────────────────────────────────
+rectangle "Système DPR Manager" {
+
+    usecase "S'identifier" as UC_LOGIN
+    usecase "Se déconnecter" as UC_LOGOUT
+
+    usecase "Gérer les comptes" as UC_USERS
+    usecase "Contrôler les rôles\net accès" as UC_ROLES
+
+    usecase "Configurer les chemins" as UC_PATHS
+    usecase "Importer la moulinette" as UC_MOUL
+    usecase "Gérer les concessions" as UC_CONC
+    usecase "Gérer les règles QC" as UC_QC
+    usecase "Gérer les unités (UOM)" as UC_UOM
+
+    usecase "Importer fichiers DPR" as UC_UPLOAD
+    usecase "Extraire les données\n(DC, DW, MC, WT)" as UC_EXTRACT
+    usecase "Corriger les données" as UC_CORRECT
+    usecase "Convertir les unités" as UC_CONVERT
+    usecase "Exporter en CSV" as UC_EXPORT
+
+    usecase "Consulter le dashboard" as UC_DASH
+    usecase "Consulter l'historique" as UC_HIST
+    usecase "Consulter le journal" as UC_LOG
+}
+
+' ── Admin (2 cas exclusifs) ────────────────────────────────
+Admin -- UC_USERS
+Admin -- UC_ROLES
+
+' ── Employé (regroupé par domaine) ─────────────────────────
+Emp -- UC_LOGIN
+Emp -- UC_LOGOUT
+
+Emp -- UC_PATHS
+Emp -- UC_MOUL
+Emp -- UC_CONC
+Emp -- UC_QC
+Emp -- UC_UOM
+
+Emp -- UC_UPLOAD
+Emp -- UC_EXTRACT
+Emp -- UC_EXPORT
+
+Emp -- UC_DASH
+Emp -- UC_HIST
+Emp -- UC_LOG
+
+' ── Includes (seulement les essentiels) ────────────────────
+UC_EXTRACT ..> UC_CORRECT : <<include>>
+UC_EXTRACT ..> UC_CONVERT : <<include>>
+
+' ── Note globale ───────────────────────────────────────────
+note bottom of UC_LOGIN
+    Toutes les actions
+    nécessitent une
+    authentification préalable
+end note
+
+@enduml

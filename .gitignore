@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+
+# Project runtime data
+uploads/*
+exports/*
+logs/*
+!uploads/.gitkeep
+!exports/.gitkeep
+!logs/.gitkeep
+
+# Empty leftover DB
+dpr_data.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Docs temp files
+docs/pages/
+docs/guide_dpr_text.txt
+docs/extract_pdf.py
+docs/extract_csv.py
+docs/inspect_excel.py
+
+# uv lock (reproducible via uv sync)
+# Uncomment the next line if you do NOT want to lock dependencies:
+# uv.lock
