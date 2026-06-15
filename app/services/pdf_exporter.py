@@ -288,49 +288,54 @@ class PDFExporterService:
         pdf.add_page()
 
         pw = pdf.w
-        cx = pw / 2  # center x
+        cx = pw / 2
 
-        # -- Logo (centered, upper third) --
-        logo_y = 50
+        # All Y positions are absolute — no overlap possible
+        y_logo = 40
+        y_title = 105
+        y_subtitle = 122
+        y_line = 138
+        y_date = 152
+        y_count = 172
+        y_names = 185
+
+        # -- ETAP Logo (centered) --
         if LOGO_PATH.exists():
-            logo_w = 38
-            pdf.image(str(LOGO_PATH), x=cx - logo_w / 2, y=logo_y, w=logo_w)
-            pdf.set_y(logo_y + 42)
-        else:
-            pdf.set_y(logo_y + 10)
+            logo_w = 28
+            pdf.image(str(LOGO_PATH), x=cx - logo_w / 2, y=y_logo, w=logo_w)
 
-        # -- Title --
+        # -- Report Title --
+        pdf.set_xy(MARGIN_LEFT, y_title)
         pdf.set_font("Helvetica", "B", 24)
         pdf.set_text_color(*COLOR_PRIMARY)
-        pdf.cell(0, 13, _safe(title), align="C", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(pw - MARGIN_LEFT - MARGIN_RIGHT, 13, _safe(title), align="C")
 
         # -- Subtitle --
-        pdf.ln(2)
+        pdf.set_xy(MARGIN_LEFT, y_subtitle)
         pdf.set_font("Helvetica", "", 11)
         pdf.set_text_color(*COLOR_SECONDARY)
-        pdf.cell(0, 7, _safe("Entreprise Tunisienne d'Activites Petrolieres"),
-                 align="C", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(pw - MARGIN_LEFT - MARGIN_RIGHT, 7,
+                 _safe("Entreprise Tunisienne d'Activites Petrolieres"), align="C")
 
         # -- Gold decorative line --
-        pdf.ln(12)
         pdf.set_draw_color(*COLOR_ACCENT)
         pdf.set_line_width(0.8)
-        pdf.line(cx - 35, pdf.get_y(), cx + 35, pdf.get_y())
-        pdf.ln(14)
+        pdf.line(cx - 35, y_line, cx + 35, y_line)
 
         # -- Report date --
         if report_date:
+            pdf.set_xy(MARGIN_LEFT, y_date)
             pdf.set_font("Helvetica", "B", 13)
             pdf.set_text_color(*COLOR_DARK)
-            pdf.cell(0, 10, _safe(f"Date du rapport : {report_date}"),
-                     align="C", new_x="LMARGIN", new_y="NEXT")
-            pdf.ln(4)
+            pdf.cell(pw - MARGIN_LEFT - MARGIN_RIGHT, 10,
+                     _safe(f"Date du rapport : {report_date}"), align="C")
 
         # -- Record count --
+        pdf.set_xy(MARGIN_LEFT, y_count)
         pdf.set_font("Helvetica", "", 10)
         pdf.set_text_color(*COLOR_MID_GRAY)
-        pdf.cell(0, 7, _safe(f"{len(records)} enregistrement(s) selectionne(s)"),
-                 align="C", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(pw - MARGIN_LEFT - MARGIN_RIGHT, 7,
+                 _safe(f"{len(records)} enregistrement(s) selectionne(s)"), align="C")
 
         # -- Concession / well names --
         name_key = None
@@ -341,21 +346,21 @@ class PDFExporterService:
         if name_key:
             names = sorted({str(r.get(name_key, "")) for r in records if r.get(name_key)})
             if names:
-                pdf.ln(3)
+                pdf.set_xy(MARGIN_LEFT, y_names)
                 pdf.set_font("Helvetica", "I", 9)
                 pdf.set_text_color(*COLOR_SECONDARY)
-                pdf.cell(0, 7, _safe(", ".join(names)),
-                         align="C", new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(pw - MARGIN_LEFT - MARGIN_RIGHT, 7,
+                         _safe(", ".join(names)), align="C")
 
-        # -- Timestamp at very bottom --
+        # -- Timestamp at bottom --
         pdf.set_y(-30)
         pdf.set_font("Helvetica", "I", 7.5)
         pdf.set_text_color(*COLOR_LIGHT_GRAY)
         ts = datetime.now().strftime("%d/%m/%Y %H:%M")
-        pdf.cell(0, 5, _safe(f"Genere le {ts}  -  DPR Manager v1.0.0"),
-                 align="C")
+        pdf.cell(pw - MARGIN_LEFT - MARGIN_RIGHT, 5,
+                 _safe(f"Genere le {ts}  -  DPR Manager v1.0.0"), align="C")
 
-        pdf._is_cover = False  # re-enable header/footer for next pages
+        pdf._is_cover = False
 
     # ================================================================
     #  RECORD CARD
@@ -569,12 +574,14 @@ class PDFExporterService:
         if not val or val == "None":
             return "-"
         s = str(val)
-        for fmt in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
+        for fmt in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d",
+                     "%d/%m/%Y", "%d-%m-%Y"):
             try:
                 return datetime.strptime(s, fmt).strftime("%d/%m/%Y")
             except ValueError:
                 continue
-        return s
+        # Not a recognizable date
+        return "-"
 
     def _format_cell_value(self, val: Any, code: str) -> str:
         if val is None or val == "" or val == "None":
@@ -598,7 +605,9 @@ class PDFExporterService:
             for key in ("DC002", "DW006", "MC002", "WT005"):
                 val = row.get(key)
                 if val:
-                    return self._format_date(val)
+                    result = self._format_date(val)
+                    if result != "-":  # skip non-date values
+                        return result
         return datetime.now().strftime("%d/%m/%Y")
 
     def _build_filename(
