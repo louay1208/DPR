@@ -214,7 +214,7 @@ const App = (() => {
 
     function populatePathFields() {
         if (config.dpr_folder) document.getElementById('dpr-files-path').value = config.dpr_folder;
-        if (config.output_folder) document.getElementById('output-csv-path').value = config.output_folder;
+        document.getElementById('output-csv-path').value = config.output_folder || '';
 
         // Auto-validate all populated paths
         const hasAny = config.dpr_folder || config.output_folder;

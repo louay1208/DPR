@@ -250,10 +250,22 @@ async def set_paths(req: PathsRequest) -> JSONResponse:
         runtime.dpr_folder = req.dpr_folder
         config_store.set_parameter("dpr_folder", req.dpr_folder)
 
+    # Output folder — validate, create, and persist
     if req.output_folder:
-        Path(req.output_folder).mkdir(parents=True, exist_ok=True)
+        out_path = Path(req.output_folder)
+        try:
+            out_path.mkdir(parents=True, exist_ok=True)
+        except (OSError, PermissionError) as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot create output folder: {req.output_folder} ({e})",
+            )
         runtime.output_folder = req.output_folder
         config_store.set_parameter("output_folder", req.output_folder)
+    elif req.output_folder == "":
+        # User cleared the field — reset to default
+        runtime.output_folder = str(EXPORT_DIR)
+        config_store.set_parameter("output_folder", str(EXPORT_DIR))
 
     return JSONResponse({
         "status": "paths_saved",

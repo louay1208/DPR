@@ -7,7 +7,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 UPLOAD_DIR = BASE_DIR / "uploads"
-EXPORT_DIR = BASE_DIR / "exports"
+EXPORT_DIR = Path.home() / "Documents" / "DPR_Exports"
 MAPPING_DIR = BASE_DIR / "mappings"
 LOG_DIR = BASE_DIR / "logs"
 STATIC_DIR = BASE_DIR / "static"
@@ -57,13 +57,17 @@ class RuntimeConfig:
 
     def __init__(self) -> None:
         self.dpr_folder: str = ""
-        self.output_folder: str = str(EXPORT_DIR)
+        self.output_folder: str = str(EXPORT_DIR)  # always defaults to <project>/exports/
         self.sm3_to_nm3: float = SM3_TO_NM3
         self.nm3_to_sm3: float = NM3_TO_SM3
         self._loaded = False
 
     def _ensure_loaded(self) -> None:
-        """Lazy-load persisted paths from SQLite (avoids import cycles)."""
+        """Lazy-load persisted paths from SQLite (avoids import cycles).
+
+        If a stored path is invalid on this machine (e.g. different device),
+        it falls back to the project-local defaults silently.
+        """
         if self._loaded:
             return
         self._loaded = True
@@ -73,10 +77,23 @@ class RuntimeConfig:
             try:
                 rows = conn.execute("SELECT key, value FROM parameters").fetchall()
                 params = {r["key"]: r["value"] for r in rows}
+
+                # DPR folder — only use if path is valid
                 if params.get("dpr_folder"):
-                    self.dpr_folder = params["dpr_folder"]
+                    p = Path(params["dpr_folder"])
+                    if p.exists():
+                        self.dpr_folder = params["dpr_folder"]
+
+                # Output folder — validate, try to create, or fall back
                 if params.get("output_folder"):
-                    self.output_folder = params["output_folder"]
+                    try:
+                        p = Path(params["output_folder"])
+                        p.mkdir(parents=True, exist_ok=True)
+                        self.output_folder = params["output_folder"]
+                    except (OSError, PermissionError):
+                        # Path invalid on this machine — keep default
+                        pass
+
                 if params.get("sm3_to_nm3"):
                     self.sm3_to_nm3 = float(params["sm3_to_nm3"])
                 if params.get("nm3_to_sm3"):
