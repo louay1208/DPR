@@ -7,7 +7,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 
 from app.config import EXPORT_DIR, get_runtime_config
@@ -353,9 +353,89 @@ async def export_csv(
     })
 
 
+@router.post("/export-pdf/{extraction_id}")
+async def export_pdf(
+    extraction_id: str,
+    request: Request,
+    report_type: ReportType = Query(default=ReportType.DAILY),
+) -> JSONResponse:
+    """Export selected records to a professional PDF report with field cards."""
+    logger = LogService.get()
+    runtime = get_runtime_config()
+
+    result = _resolve_extraction(extraction_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Extraction not found")
+
+    # Parse optional JSON body for row selection and attribute map
+    row_indices = None
+    attribute_map = {}
+    try:
+        body = await request.json()
+        row_indices = body.get("row_indices")
+        attribute_map = body.get("attribute_map", {})
+    except Exception:
+        pass  # No body or invalid JSON — export all rows
+
+    # Use the extraction's own report_type if the requested type has no data
+    effective_type = report_type
+    type_has_data = {
+        ReportType.DAILY: bool(result.dc_data or result.dw_data),
+        ReportType.DC: bool(result.dc_data),
+        ReportType.DW: bool(result.dw_data),
+        ReportType.MONTHLY: bool(result.mc_data),
+        ReportType.WELL_TEST: bool(result.wt_data),
+    }
+    if not type_has_data.get(report_type, False):
+        effective_type = result.report_type
+
+    # Select the correct data list based on effective report type
+    type_data_map = {
+        ReportType.DAILY: result.dc_data or result.dw_data or [],
+        ReportType.DC: result.dc_data or [],
+        ReportType.DW: result.dw_data or [],
+        ReportType.MONTHLY: result.mc_data or [],
+        ReportType.WELL_TEST: result.wt_data or [],
+    }
+    all_rows = type_data_map.get(effective_type, result.data or [])
+
+    # Filter to selected rows if indices are provided
+    if row_indices is not None:
+        all_rows = [all_rows[i] for i in row_indices if 0 <= i < len(all_rows)]
+
+    if not all_rows:
+        raise HTTPException(status_code=400, detail="No data to export")
+
+    from app.services.pdf_exporter import PDFExporterService
+
+    pdf_exporter = PDFExporterService()
+    try:
+        output_path = await pdf_exporter.export_pdf(
+            records=all_rows,
+            report_type=effective_type.value,
+            output_folder=runtime.output_folder,
+            attribute_map=attribute_map,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        await logger.error(f"PDF export failed: {e}", source="export")
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return JSONResponse({
+        "status": "exported",
+        "filename": output_path.name,
+        "record_count": len(all_rows),
+        "download_url": f"/api/download/{output_path.name}",
+        "path": str(output_path),
+        "size": output_path.stat().st_size,
+    })
+
+
 # ════════════════════════════════════════════════════════════════════════════
 # CRUD — Record-level operations
 # ════════════════════════════════════════════════════════════════════════════
+
 
 @router.put("/records/{extraction_id}/{data_type}/{row_index}")
 async def update_record(
@@ -497,7 +577,8 @@ async def download_file(filename: str) -> FileResponse:
         raise HTTPException(status_code=404, detail="File not found")
 
     return FileResponse(
-        path=filepath, filename=filename, media_type="text/csv",
+        path=filepath, filename=filename,
+        media_type="application/pdf" if filename.endswith(".pdf") else "text/csv",
     )
 
 

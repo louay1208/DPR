@@ -1553,6 +1553,44 @@ const App = (() => {
         } catch (e) { toast('Error', 'error'); }
     }
 
+    async function exportPDF(type) {
+        if (!currentExtractionId) { toast(I18n.t('toast.extract_first') || 'Run extraction first', 'warning'); return; }
+        try {
+            // Map API report_type to internal selectedRows key
+            const internalKeyMap = { monthly: 'mc', well_test: 'wt' };
+            const internalKey = internalKeyMap[type] || type;
+            // Collect selected row indices for this type
+            const selected = Array.from(selectedRows[internalKey] || []);
+            if (selected.length === 0) {
+                toast('Select at least one record to export', 'warning');
+                return;
+            }
+            toast(`Generating PDF report for ${selected.length} record(s)...`, 'info');
+            const res = await fetch(`/api/export-pdf/${currentExtractionId}?report_type=${type || 'daily'}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    row_indices: selected,
+                    attribute_map: attributeMap,
+                }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                toast(`PDF exported: ${data.filename}`, 'success');
+                // Auto-open the PDF in a new tab
+                if (data.download_url) {
+                    window.open(data.download_url, '_blank');
+                }
+                incrStat('stat-exports');
+            } else {
+                toast(data.detail || 'PDF export failed', 'error');
+            }
+        } catch (e) {
+            console.error('PDF export error:', e);
+            toast('PDF export error', 'error');
+        }
+    }
+
     async function refreshExtraction() {
         if (!currentExtractionId) return;
         try {
@@ -2324,7 +2362,7 @@ const App = (() => {
     document.addEventListener('DOMContentLoaded', init);
 
     return {
-        goTo, extract, autoCorrect, convertUnits, exportCSV, exportType,
+        goTo, extract, autoCorrect, convertUnits, exportCSV, exportType, exportPDF,
         savePaths, refreshDashboard, clearLogs,
         onReportChange, onDateModeChange, onMultipleChange,
         prepareFiles, clearExtraction,

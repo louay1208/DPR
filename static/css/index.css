@@ -181,6 +181,8 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg-
 .btn-outline{background:transparent;color:var(--text-secondary);border-color:var(--border)}
 .btn-outline:hover{background:var(--accent-subtle);color:var(--text-primary)}
 .btn-danger{background:var(--error);color:#fff;border-color:var(--error)}
+.btn-accent{background:#00529b;color:#fff;border-color:#00529b}
+.btn-accent:hover{background:#003d73;border-color:#003d73}
 .btn-sm{padding:5px 11px;font-size:.72rem}
 .btn-xs{padding:3px 8px;font-size:.66rem}
 .btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
